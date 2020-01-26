@@ -1,3 +1,4 @@
 gdb
 openocd
 doxygen
+texlive-latex-recommended
