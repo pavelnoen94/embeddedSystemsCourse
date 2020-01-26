@@ -1,5 +1,6 @@
 .DEFAULT_GOAL := all
 PROGRAMS := step until inspect break trace seg1 seg2 leak
+VPATH = programs/ # where to look for output files before "make"-ing
 
 .PHONY: all
 all : | programs
