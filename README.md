@@ -1,6 +1,12 @@
 # Embeded system cource
 Just a simple repo to maintain project files.
 
+## Setup
+```sh
+git clone https://github.com/pavelnoen94/embededSystemsCource
+sudo embededSystemsCource/setup/install.sh
+```
+
 ## Repo contents
 
 ### makefile
