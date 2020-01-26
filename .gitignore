@@ -56,4 +56,5 @@ dkms.conf
 
 #gdb
 .gdbinit
-gdb/programs/docs/*
+gdb/programs/
+docs/*
