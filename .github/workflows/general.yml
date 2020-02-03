@@ -10,4 +10,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make
-      run: make make/makefile
+      run: make makefile/makefile
