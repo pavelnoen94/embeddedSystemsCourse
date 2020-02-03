@@ -1,3 +1,4 @@
+![General CI](https://github.com/pavelnoen94/embededSystemsCource/workflows/General%20CI/badge.svg)
 # Embeded system cource
 Just a simple repo to maintain project files.
 
