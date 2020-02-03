@@ -10,4 +10,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: make
-      run: cd makefile/ ; make; cd ../gdb ; make; cd ..; doxygen 
+      run: cd makefile/ ; make; cd ../gdb ; make;
