@@ -58,3 +58,10 @@ dkms.conf
 .gdbinit
 gdb/programs/
 docs/*
+
+#binaries to be excluded
+communism
+gdb/programs/*
+makefile/build/*
+
+
