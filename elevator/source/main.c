@@ -26,8 +26,8 @@ static void sigint_handler(int sig){
 }
 
 int main(){
-    int error = hardware_init();
-    if(error != 0){
+
+    if(!hardware_init()){
         fprintf(stderr, "Unable to initialize hardware\n");
         exit(1);
     }
