@@ -64,4 +64,5 @@ communism
 gdb/programs/*
 makefile/build/*
 
-
+# Exclude documentation for elevator
+elevator/docs/*
