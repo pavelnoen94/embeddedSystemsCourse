@@ -25,3 +25,8 @@ int updateObstructionState();
  * */
 int updateStopSignalState();
 
+/**
+ * @brief Calls @c hardware_read_order() for every order button, and stores all orders in the appropriate queue.
+ * @return number of new orders added (0 if no new orders).
+ * */
+int readAndAddOrders();
