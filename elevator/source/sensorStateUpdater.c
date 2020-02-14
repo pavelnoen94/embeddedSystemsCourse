@@ -80,6 +80,7 @@ int readAndAddOrders() {
             }
         }
     }
+    return newOrdersAdded;
 }
 
 /*
@@ -88,3 +89,17 @@ int readAndAddOrders() {
     HARDWARE_ORDER_INSIDE,
     HARDWARE_ORDER_DOWN
 */
+
+/**
+ * @brief Calls all functions to read and check sensors and orders. 
+ * @return Truthy value if any states were changed from last call. -1 if @c checkFLoorSensors read more than 1 sensor active.
+ * */
+int update_all_sensor_states() {    // Samlefunksjon - inneholder kun andre funksjoner
+    int changedStates = 0;
+    changedStates += checkFloorSensors();
+    if (changedStates < 0) { return -1; }
+    changedStates += updateObstructionState();
+    changedStates += updateStopSignalState();
+    changedStates += readAndAddOrders();
+    return changedStates;
+}
