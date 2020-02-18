@@ -16,3 +16,7 @@ void moveElevatorUp();
 void moveElevatorDown();
 void emergencyStop();
 void clearOrders();
+void allLightsOn();
+void allLightsOff();
+void hardwareInit();
+void findPosition();

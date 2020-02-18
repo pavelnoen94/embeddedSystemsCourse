@@ -28,9 +28,3 @@ void findPosition();
  * @brief Turn all the lights on inside the elevator. Used by inti() to indicate that a initialization prosess is active.
  * 
  */
-void allLightsOn();
-/**
- * @brief Turn all the lights off
- * 
- */
-void allLightsOff();
