@@ -49,3 +49,8 @@ int upQueue[HARDWARE_NUMBER_OF_FLOORS] = {0};
  * */
 int downQueue[HARDWARE_NUMBER_OF_FLOORS] = {0};
 
+/**
+ * @brief Has the elevator been initialized?
+ * 
+ */
+bool initialized = false;
