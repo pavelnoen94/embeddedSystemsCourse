@@ -1,11 +1,10 @@
 /**
  * @file actions.h
- * @author your name (you@domain.com)
+ * @author Pavel Skipenes (pavelgs@stud.ntnu.no)
  * @brief 
  * @version 0.1
  * @date 2020-02-18
  * 
- * @copyright Copyright (c) 2020
  * 
  */
 
@@ -18,5 +17,17 @@ void emergencyStop();
 void clearOrders();
 void allLightsOn();
 void allLightsOff();
+#ifndef DOXYGEN_SKIP
+/**
+ * @brief Checks the connection with the hardware. Terminates the program on communication error.
+ * 
+ */
+#endif
 void hardwareInit();
+#ifndef DOXYGEN_SKIP
+/**
+ * @brief Finds the position of the elevator. Called interanlly on Boot
+ * 
+ */
+#endif
 void findPosition();

@@ -6,7 +6,7 @@
 *.ko
 *.obj
 *.elf
-
+j
 # Linker output
 *.ilk
 *.map
@@ -66,3 +66,7 @@ makefile/build/*
 
 # Exclude documentation for elevator
 elevator/docs/*
+
+# VS Code Settingsfile
+.vscode/
+elevator/.vscode/
