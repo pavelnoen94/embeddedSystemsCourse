@@ -1,6 +1,3 @@
 
 
-void mainloop(){
-
-    
-}
+void mainloop();

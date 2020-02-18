@@ -4,7 +4,7 @@
  * */
 
 #include "hardware.h" 
-
+#include <stdbool.h>
 /**
  * @brief Output signal of @p STOP. Polled by @c hardware_read_stop_signal(). Remains constant for an iteration of @c programLoop.
  **/
