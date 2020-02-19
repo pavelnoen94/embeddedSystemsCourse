@@ -1,65 +1,83 @@
-#include <stdlib.h>
+#include <stdbool.h>
+#include "hardware.h"
+#include "elevator.h"
+#include "sensor.h"
+#include "actions.h"
 
-void openDoor(){
-
-}
-void closeDoor(){
-
-}
-
-void moveElevatorUp(){
-
-}
-
-void moveElevatorDown(){
-
-}
-void stopElevator(){
-
-}
-
-void emergencyStop(){
-
-}
-
-void clearOrders(){
-    
-}
-
-void allLightsOn(){
-    for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++){
-        for(int i = 0; i < 3; i++){
-            HardwareOrder type = order_types[i];
-            hardware_command_order_light(f, type, on);
-        }
+void elevatorMove(Direction direction){
+    if(direction == DOWN){
+        hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
+        return;
+    }
+    if(direction == UP){
+        hardware_command_movement(HARDWARE_MOVEMENT_UP);
+        return;
+    }
+    if(direction == NONE){
+        elevatorStop();
+        return;
     }
 }
 
-void allLightsOff(){
-    for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++){
-        for(int i = 0; i < 3; i++){
-            HardwareOrder type = order_types[i];
-            hardware_command_order_light(f, type, 0);
-        }
-    }
+void elevatorStop(){
+    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
 }
 
-void harwareInit(){
-    int error = hardware_init();
-    if(error != 0){
-        fprintf(stderr, "Unable to initialize hardware\n");
+void elevatorMoveTo(int targetFloor){
+    if(floor < 0 || floor > HARDWARE_NUMBER_OF_FLOORS){
+        stderr("error inside elevatorMoveTo. Floor does not exsist. Requested floor: %i", targetFloor);
         exit(1);
     }
+    if(lastKnownFloor == targetFloor){
+        return;
+    }
+    if(lastKnownFloor > targetFloor){
+        elevatorMove(DOWN);
+        while(!atSomeFloor){
+            readAllSensors();
+        }
+        elevatorMoveTo(targetFloor);
+        return;
+    }
+    if(lastKnownFloor < targetFloor){
+        elevatorMove(UP);
+        while(!atSomeFloor){
+            readAllSensors();
+        }
+        elevatorMoveTo(targetFloor);
+        return;
+    }
+}
+void clearAllOrders(){
+    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+        upOrders[i] = false;
+        downOrders[i] = false;
+        insideOrders[i] = false;
+
+        hardware_command_order_light(i,HARDWARE_ORDER_UP,0);
+        hardware_command_order_light(i,HARDWARE_ORDER_DOWN,0);
+        hardware_command_order_light(i,HARDWARE_ORDER_INSIDE,0);
+    }
 }
 
-void findPosition(){
-    // set direction upward and start moving
-    hardware_command_movement(HARDWARE_MOVEMENT_UP);
+void clearOrdersAtThisFloor(){
+    hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_INSIDE,0);
+    insideOrders[lastKnownFloor] = false;
 
-    // wait for known position
-    while(getCurrentFloor() == 0){
-
+    if(direction == DOWN){
+        hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_DOWN,0);
+        downOrders[lastKnownFloor] = false;
+        return;
     }
-    
-    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+    if(direction == UP){
+        hardware_command_order_light(lastKnownFloor,UP,0);
+        upOrders[lastKnownFloor] = false;
+        return;
+    }
+    if(direction == NONE){
+        hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_UP,0);
+        hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_DOWN,0);
+        upOrders[lastKnownFloor] = false;
+        downOrders[lastKnownFloor] = false;
+    }
 }
