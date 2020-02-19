@@ -1,12 +1,13 @@
 #include <stdbool.h>
 #include "elevator.h"
 #include "status.h"
+#include "sensor.h"
 #include "trigger.h"
 
 void mainLoop(){
     init();
     while(1){
-        UpdateAllSensors();
+        updateAllSensors();
         findStatus();
         callStatus();
     }

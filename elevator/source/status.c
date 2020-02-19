@@ -2,6 +2,9 @@
 #include "hardware.h"
 #include "elevator.h"
 #include "status.h"
+#include "actions.h"
+#include "sensor.h"
+#include <time.h>
 
 void init(){
     int error = hardware_init();
@@ -9,8 +12,6 @@ void init(){
         fprintf(stderr, "Unable to initialize hardware\n");
         exit(1);
     }
-
-    signal(SIGINT, sigint_handler);
 
     clear_all_order_lights();
     elevatorMove(UP);
@@ -60,10 +61,13 @@ void running(){
         }
     }
     if(direction == DOWN){
+        {
+            int i = lastKnownFloor - 1;
         if(i != 0){
-            for(int i = lastKnownFloor - 1; i != 0; i--){
+            for( ; i != 0; i--){
                 if(downOrders[i] || insideOrders[i]){
                     return;
+                    }
                 }
             }
         }

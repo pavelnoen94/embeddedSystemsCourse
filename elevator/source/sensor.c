@@ -58,7 +58,7 @@ inline void readObstruction(){
 }
 
 inline bool activeOrderAtThisFloor(){
-    return upOrders[lastKnownFloor] || downOrders[lastknownFloor] || insideOrders[lastKnownFloor];
+    return upOrders[lastKnownFloor] || downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
 }
 
 Direction getDirection(){

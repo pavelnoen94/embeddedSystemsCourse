@@ -24,8 +24,8 @@ void elevatorStop(){
 }
 
 void elevatorMoveTo(int targetFloor){
-    if(floor < 0 || floor > HARDWARE_NUMBER_OF_FLOORS){
-        stderr("error inside elevatorMoveTo. Floor does not exsist. Requested floor: %i", targetFloor);
+    if(targetFloor < 0 || targetFloor > HARDWARE_NUMBER_OF_FLOORS){
+        printf("error inside elevatorMoveTo. Floor does not exsist. Requested floor: %i", targetFloor);
         exit(1);
     }
     if(lastKnownFloor == targetFloor){
@@ -34,7 +34,7 @@ void elevatorMoveTo(int targetFloor){
     if(lastKnownFloor > targetFloor){
         elevatorMove(DOWN);
         while(!atSomeFloor){
-            readAllSensors();
+            updateAllSensors();
         }
         elevatorMoveTo(targetFloor);
         return;
@@ -42,7 +42,7 @@ void elevatorMoveTo(int targetFloor){
     if(lastKnownFloor < targetFloor){
         elevatorMove(UP);
         while(!atSomeFloor){
-            readAllSensors();
+            updateAllSensors();
         }
         elevatorMoveTo(targetFloor);
         return;
@@ -79,5 +79,19 @@ void clearOrdersAtThisFloor(){
         hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_DOWN,0);
         upOrders[lastKnownFloor] = false;
         downOrders[lastKnownFloor] = false;
+    }
+}
+static void clear_all_order_lights(){
+    HardwareOrder order_types[3] = {
+        HARDWARE_ORDER_UP,
+        HARDWARE_ORDER_INSIDE,
+        HARDWARE_ORDER_DOWN
+    };
+
+    for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++){
+        for(int i = 0; i < 3; i++){
+            HardwareOrder type = order_types[i];
+            hardware_command_order_light(f, type, 0);
+        }
     }
 }

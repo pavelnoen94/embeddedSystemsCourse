@@ -37,6 +37,5 @@ typedef enum {
 Status status;
 Direction direction;
 
-static void sigint_handler(int sig);
 void Elevator();
 #endif
