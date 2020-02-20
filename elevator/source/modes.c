@@ -29,7 +29,7 @@ void running(){
         elevatorMove(getDirection());
         while(!atSomeFloor){
             runningModeReader();
-            if(stopButtonPressed){
+            if(emergencyState){
                 emergency();
             }
         }
@@ -42,7 +42,7 @@ void running(){
     elevatorMove(direction);
     while(!atSomeFloor){
         runningModeReader();
-        if(stopButtonPressed){
+        if(emergencyState){
             emergency();
             return;
         }
@@ -97,7 +97,7 @@ void running(){
 }
 void idle(){
     while(!hasOrders){
-        if(stopButtonPressed){
+        if(emergencyState){
             emergency();
         }
         idleModeReader();
@@ -117,9 +117,9 @@ void openDoor(){
     // wait 3 sec without obstructions
     while(DOOR_OPEN_TIME > ((timer_end - timer_start)/CLOCKS_PER_SEC)){
         doorModeReader();
-        if(obstruction || stopButtonPressed){
-            if(stopButtonPressed){
-                stopButtonPressed = false;
+        if(obstruction || emergencyState){
+            if(emergencyState){
+                emergencyState = false;
             }
             timer_start = clock();
         }
@@ -134,7 +134,7 @@ void openDoor(){
 void emergency(){
 
     if(atSomeFloor){
-        stopButtonPressed = false;
+        emergencyState = false;
         openDoor();
         return;
     }
@@ -144,11 +144,6 @@ void emergency(){
     while(!hasOrders){
         emergencyModeReader();
     }
-    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-        if(insideOrders[i]){
-            elevatorMoveTo(i);
-        }
-    }
-    openDoor();
+    emergencyState = false;
     return;
 }

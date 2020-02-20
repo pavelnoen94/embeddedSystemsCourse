@@ -11,7 +11,7 @@
 static bool upOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
 static bool downOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
 static bool insideOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
-static bool stopButtonPressed = false;
+static bool emergencyState = false;
 static bool hasOrders = false;
 static bool doorTimerStarted = false;
 static bool obstruction = false;

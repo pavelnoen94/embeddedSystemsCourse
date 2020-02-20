@@ -8,7 +8,7 @@ void Elevator(){
     while(true){
         updateAllSensors();
         
-        if(stopButtonPressed){
+        if(emergencyState){
             emergency();
             return;
         }

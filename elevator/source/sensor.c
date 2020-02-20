@@ -53,7 +53,7 @@ void readObstruction(){
 }
 
 void readStop(){
-    stopButtonPressed = stopButtonPressed || hardware_read_stop_signal(); // TODO: Change variable name to stopSignalSet
+    emergencyState = emergencyState || hardware_read_stop_signal();
 }
 
 void readFloorSensors(){
@@ -74,7 +74,7 @@ inline bool activeOrderThisFloor(){
 }
 
 void updateStopButtonLight(){
-    hardware_command_stop_light(stopButtonPressed);
+    hardware_command_stop_light(emergencyState = false);
 }
 
 Direction getDirection(){
