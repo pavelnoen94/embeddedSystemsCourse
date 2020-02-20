@@ -15,6 +15,6 @@ void elevatorMove(Direction);
 void elevatorStop();    // rename to stopElevator
 void elevatorMoveTo(int); // Used only by insideOrders
 void clearAllOrders();
-void clearOrdersAtThisFloor();
+void clearAllOrdersAtThisFloor();
 void clear_all_order_lights();
 #endif

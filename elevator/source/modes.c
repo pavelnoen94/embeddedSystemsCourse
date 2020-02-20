@@ -7,6 +7,7 @@
 #include <time.h>
 
 void startUp(){
+    elevatorStop();
     int error = hardware_init();
     if(error != 0){
         fprintf(stderr, "Unable to initialize hardware\n");
@@ -14,9 +15,12 @@ void startUp(){
     }
 
     // standard values
-    upOrders = {false};
-    downOrders = {false};
-    insideOrders = {false};
+    for(int i =0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+        upOrders[i] = false;
+        downOrders[i] = false;
+        insideOrders[i] = false;
+    }
+    
 
     emergencyState = false;
     hasOrders = false;
@@ -30,6 +34,7 @@ void startUp(){
     while(!atSomeFloor){
         initModeReader();
     }
+    elevatorStop();
 }
 void running(){
     if(!hasOrders){
@@ -39,14 +44,15 @@ void running(){
     if(direction == NONE){
         // direction unknown and we have an order
         elevatorMove(getDirection());
-        while(!atSomeFloor){
+        
+        while(!atSomeFloor && !lastKnownFloor ){ // not current floor 
             runningModeReader();
             if(emergencyState){
                 emergency();
             }
         }
         // floor reached
-        clearOrders();
+        clearAllOrdersAtThisFloor();
         openDoor();
         return;
     }
@@ -59,7 +65,7 @@ void running(){
             return;
         }
     }
-    clearOrders();
+    clearAllOrdersAtThisFloor();
     openDoor();
 
     // check if there is any orders left
@@ -71,12 +77,12 @@ void running(){
                 return;
             }
         }
-        // check for orders in oposite direction
+        // check for orders in opposite direction
         for(int i = HARDWARE_NUMBER_OF_FLOORS - 1; i != 0; i--){
             if(downOrders[i] || insideOrders[i]){
                 elevatorMoveTo(i);
                 direction = DOWN;
-                clearOrders();
+                clearAllOrdersAtThisFloor();
                 return;
             }
         }
@@ -98,7 +104,7 @@ void running(){
             if(upOrders[i] || insideOrders[i]){
                 elevatorMoveTo(i);
                 direction = UP;
-                clearOrders();
+                clearAllOrdersAtThisFloor();
                 openDoor();
                 return;
             }
@@ -119,7 +125,7 @@ void idle(){
 void openDoor(){
 
     elevatorStop();
-    clearOrders();
+    clearAllOrdersAtThisFloor();
 
     // start a timer and open the door open
     hardware_command_door_open(1);

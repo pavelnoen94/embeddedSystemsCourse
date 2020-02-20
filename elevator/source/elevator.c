@@ -11,11 +11,9 @@ void Elevator(){
         
         if(emergencyState){
             emergency();
-            return;
         }
         if(!hasOrders){
             idle();
-            return;
         }
         running();
     }

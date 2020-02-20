@@ -69,7 +69,7 @@ void clearAllOrdersAtThisFloor(){
 
     hardware_command_order_light(i,HARDWARE_ORDER_UP,0);
     hardware_command_order_light(i,HARDWARE_ORDER_DOWN,0);
-hardware_command_order_light(i,HARDWARE_ORDER_INSIDE,0);
+    hardware_command_order_light(i,HARDWARE_ORDER_INSIDE,0);
 }
 
 void clear_all_order_lights(){

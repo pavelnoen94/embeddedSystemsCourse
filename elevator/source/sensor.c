@@ -34,6 +34,14 @@ void doorModeReader(){
 }
 
 //************************************//
+void readAll()
+{
+    readObstruction();
+    readOrders();
+    readStop();
+    updateStopButtonLight();
+    readFloorSensors();
+}
 
 void readOrders(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -42,6 +50,11 @@ void readOrders(){
         upOrders[i] = upOrders[i] || hardware_read_order(i,HARDWARE_ORDER_UP);
         downOrders[i] = downOrders[i] || hardware_read_order(i,HARDWARE_ORDER_DOWN);
         insideOrders[i] = insideOrders[i] || hardware_read_order(i,HARDWARE_ORDER_INSIDE);
+
+        hardware_command_order_light(i,HARDWARE_ORDER_UP, upOrders[i]);
+        hardware_command_order_light(i,HARDWARE_ORDER_INSIDE, insideOrders[i]);
+        hardware_command_order_light(i,HARDWARE_ORDER_DOWN, downOrders[i]);
+
 
         // register orders
         hasOrders = hasOrders || upOrders[i] || insideOrders[i] || downOrders[i];
@@ -57,14 +70,18 @@ void readStop(){
 }
 
 void readFloorSensors(){
+    atSomeFloor = false;
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
 
         // read floor sensors
         if(hardware_read_floor_sensor(i)){
+            printf("i'm at floor %i\n", i+1);
             atSomeFloor = true;
             lastKnownFloor = i;
             hardware_command_floor_indicator_on(i);
+            return;
         }
+
     }
 }
 //************************************//

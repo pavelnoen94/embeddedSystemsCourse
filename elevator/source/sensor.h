@@ -9,6 +9,7 @@
  * 
  */
 
+void readAll();
 void initModeReader();
 void idleModeReader();
 void runningModeReader();
