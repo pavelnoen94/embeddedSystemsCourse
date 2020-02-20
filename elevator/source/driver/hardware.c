@@ -4,6 +4,8 @@
 
 #include <stdlib.h>
 
+#define MOTORSPEED 2800
+
 static int hardware_legal_floor(int floor, HardwareOrder order_type){
     int lower_floor = 0;
     int upper_floor = HARDWARE_NUMBER_OF_FLOORS - 1;
@@ -71,7 +73,7 @@ void hardware_command_movement(HardwareMovement movement){
     switch(movement){
         case HARDWARE_MOVEMENT_UP:
             io_clear_bit(MOTORDIR);
-            io_write_analog(MOTOR, 2800);
+            io_write_analog(MOTOR, MOTORSPEED);
             break;
 
         case HARDWARE_MOVEMENT_STOP:
@@ -80,7 +82,7 @@ void hardware_command_movement(HardwareMovement movement){
 
         case HARDWARE_ORDER_DOWN:
             io_set_bit(MOTORDIR);
-            io_write_analog(MOTOR, 2800);
+            io_write_analog(MOTOR, MOTORSPEED);
             break;
     }
 }
