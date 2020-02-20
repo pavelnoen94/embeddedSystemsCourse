@@ -6,7 +6,7 @@
 #include "sensor.h"
 #include <time.h>
 
-void init(){
+void startUp(){
     int error = hardware_init();
     if(error != 0){
         fprintf(stderr, "Unable to initialize hardware\n");
@@ -16,7 +16,7 @@ void init(){
     clear_all_order_lights();
     elevatorMove(UP);
     while(!atSomeFloor){
-        updateAllSensors();
+        initModeReader();
     }
 }
 void running(){
@@ -28,7 +28,7 @@ void running(){
         // direction unknown and we have an order
         elevatorMove(getDirection());
         while(!atSomeFloor){
-            updateAllSensors();
+            runningModeReader();
         }
         // floor reached
         clearOrdersAtThisFloor();
@@ -38,7 +38,7 @@ void running(){
 
     elevatorMove(direction);
     while(!atSomeFloor){
-        updateAllSensors();
+        runningModeReader();
     }
     clearOrdersAtThisFloor();
     openDoor();
@@ -63,12 +63,12 @@ void running(){
     if(direction == DOWN){
         {
             int i = lastKnownFloor - 1;
-        if(i != 0){
-            for( ; i != 0; i--){
-                if(downOrders[i] || insideOrders[i]){
-                    return;
+            if(i != 0){
+                for( ; i != 0; i--){
+                    if(downOrders[i] || insideOrders[i]){
+                        return;
+                        }
                     }
-                }
             }
         }
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -86,7 +86,7 @@ void running(){
 }
 void idle(){
     while(!hasOrders){
-        updateAllSensors();
+        idleModeReader();
     }
 }
 void openDoor(){
@@ -101,8 +101,7 @@ void openDoor(){
 
     // wait 3 sec without obstruction
     while(DOOR_OPEN_TIME > ((timer_end - timer_start)/CLOCKS_PER_SEC)){
-        readObstruction();
-        readOrders();
+        doorModeReader();
         if(obstruction){
             timer_start = clock();
         }
@@ -114,7 +113,7 @@ void openDoor(){
     return;
 
 }
-void stopped(){
+void emergency(){
 
     if(atSomeFloor){
         openDoor();
@@ -124,7 +123,7 @@ void stopped(){
     elevatorStop();
     clearAllOrders();
     while(!hasOrders){
-        readOrdersOnlyInside();
+        emergencyModeReader();
     }
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         if(insideOrders[i]){
