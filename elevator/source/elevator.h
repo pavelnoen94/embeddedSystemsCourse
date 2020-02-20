@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Library containing program variables, and the main program loop @c Elevator()
+ * @brief Library containing program variables, and the main program loop Elevator()
  * 
  */
 
