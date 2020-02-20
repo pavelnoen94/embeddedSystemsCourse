@@ -25,11 +25,11 @@ void elevatorStop(){
 
 void elevatorMoveTo(int targetFloor){
     if(targetFloor < 0 || targetFloor > HARDWARE_NUMBER_OF_FLOORS){
-        printf("error inside elevatorMoveTo. Floor does not exsist. Requested floor: %i", targetFloor);
+        printf("Error inside elevatorMoveTo. Floor does not exist. Requested floor: %i", targetFloor);
         exit(1);
     }
     if(lastKnownFloor == targetFloor){
-        return; //TODO: not nessesarry at this floor
+        return; //TODO: not necessary at this floor
     }
     if(lastKnownFloor > targetFloor){
         elevatorMove(DOWN);
