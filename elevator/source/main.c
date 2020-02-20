@@ -27,8 +27,11 @@ static void sigint_handler(int sig){
 
 int main(){
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> b80380cca450d2402505ec50dc1e667382729172
     int error = hardware_init();
     if(error != 0){
         fprintf(stderr, "Unable to initialize hardware\n");
