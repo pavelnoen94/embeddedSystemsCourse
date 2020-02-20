@@ -29,7 +29,7 @@ void elevatorMoveTo(int targetFloor){
         exit(1);
     }
     if(lastKnownFloor == targetFloor){
-        return;
+        return; //TODO: not nessesarry at this floor
     }
     if(lastKnownFloor > targetFloor){
         elevatorMove(DOWN);
@@ -48,6 +48,7 @@ void elevatorMoveTo(int targetFloor){
         return;
     }
 }
+
 void clearAllOrders(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         upOrders[i] = false;
@@ -61,6 +62,7 @@ void clearAllOrders(){
 }
 
 void clearOrdersAtThisFloor(){
+    // kill order lights inside
     hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_INSIDE,0);
     insideOrders[lastKnownFloor] = false;
 

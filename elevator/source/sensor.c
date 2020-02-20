@@ -7,26 +7,17 @@ void updateAllSensors(){
     stopButtonPressed = stopButtonPressed || hardware_read_stop_signal();
     readObstruction();
     hasOrders = false;
+    atSomeFloor = false;
+
+    readOrders();
 
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-
-        // read order buttons
-        upOrders[i] = upOrders[i] || hardware_read_order(i,HARDWARE_ORDER_UP);
-        downOrders[i] = downOrders[i] || hardware_read_order(i,HARDWARE_ORDER_DOWN);
-        insideOrders[i] = insideOrders[i] || hardware_read_order(i,HARDWARE_ORDER_INSIDE);
-
-        // register orders
-        hasOrders = hasOrders || upOrders[i];
-        hasOrders = hasOrders || downOrders[i];
-        hasOrders = hasOrders || insideOrders[i];
 
         // read floor sensors
         if(hardware_read_floor_sensor(i)){
             atSomeFloor = true;
             lastKnownFloor = i;
             hardware_command_floor_indicator_on(i);
-        }else{
-            atSomeFloor = false;
         }
     }
 }
@@ -38,8 +29,7 @@ void readOrdersOnlyInside(){
     }
 }
 
-void readOrdersOnly(){
-    hasOrders = false;
+void readOrders(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         // read order buttons
         upOrders[i] = upOrders[i] || hardware_read_order(i,HARDWARE_ORDER_UP);
@@ -47,9 +37,7 @@ void readOrdersOnly(){
         insideOrders[i] = insideOrders[i] || hardware_read_order(i,HARDWARE_ORDER_INSIDE);
 
         // register orders
-        hasOrders = hasOrders || upOrders[i];
-        hasOrders = hasOrders || downOrders[i];
-        hasOrders = hasOrders || insideOrders[i];
+        hasOrders = hasOrders || upOrders[i] || insideOrders[i] || downOrders[i];
     }
 }
 

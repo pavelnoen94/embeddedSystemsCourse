@@ -8,24 +8,17 @@
 
 #define DOOR_OPEN_TIME 3
 
-bool upOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
-bool downOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
-bool insideOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
-bool stopButtonPressed = false;
-bool hasOrders = false;
-bool doorTimerStarted = false;
-bool obstruction = false;
-bool atSomeFloor = false;
-bool floorSensor[HARDWARE_NUMBER_OF_FLOORS] = {false};
-int lastKnownFloor;
-
-// Elevator status
-typedef enum {
-    IDLE,
-    RUNNING,
-    STOPPED,
-    OPEN_DOOR // temporary status. Being called from other statuses
-} Status;
+static bool upOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
+static bool downOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
+static bool insideOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
+static bool stopButtonPressed = false;
+static bool hasOrders = false;
+static bool doorTimerStarted = false;
+static bool obstruction = false;
+static bool atSomeFloor = false;
+static bool floorSensor[HARDWARE_NUMBER_OF_FLOORS] = {false};
+static int lastKnownFloor;
+static unsigned int Iterations = 0;
 
 // Elevator direction
 typedef enum {
@@ -34,8 +27,6 @@ typedef enum {
     DOWN
 } Direction;
 
-Status status;
 Direction direction;
-
 void Elevator();
 #endif
