@@ -5,10 +5,6 @@
 
 void Elevator(){
     init();
-
-    time_t performance_test = clock();
-    
-
     while(true){
         updateAllSensors();
         
