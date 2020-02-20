@@ -29,9 +29,12 @@ void running(){
         elevatorMove(getDirection());
         while(!atSomeFloor){
             runningModeReader();
+            if(stopButtonPressed){
+                emergency();
+            }
         }
         // floor reached
-        clearOrdersAtThisFloor();
+        clearOrders();
         openDoor();
         return;
     }
@@ -39,29 +42,36 @@ void running(){
     elevatorMove(direction);
     while(!atSomeFloor){
         runningModeReader();
+        if(stopButtonPressed){
+            emergency();
+            return;
+        }
     }
-    clearOrdersAtThisFloor();
+    clearOrders();
     openDoor();
 
     // check if there is any orders left
 
     if(direction == UP){
+        // check for orders in current direction
         for(int i = lastKnownFloor + 1; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(upOrders[i] || insideOrders[i]){
                 return;
             }
         }
+        // check for orders in oposite direction
         for(int i = HARDWARE_NUMBER_OF_FLOORS - 1; i != 0; i--){
             if(downOrders[i] || insideOrders[i]){
                 elevatorMoveTo(i);
                 direction = DOWN;
-                clearOrdersAtThisFloor();
+                clearOrders();
                 return;
             }
         }
     }
     if(direction == DOWN){
         {
+            // check for orders in current direction
             int i = lastKnownFloor - 1;
             if(i != 0){
                 for( ; i != 0; i--){
@@ -71,11 +81,12 @@ void running(){
                     }
             }
         }
+        // check for orders in oposite direction
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(upOrders[i] || insideOrders[i]){
                 elevatorMoveTo(i);
                 direction = UP;
-                clearOrdersAtThisFloor();
+                clearOrders();
                 openDoor();
                 return;
             }
@@ -86,23 +97,30 @@ void running(){
 }
 void idle(){
     while(!hasOrders){
+        if(stopButtonPressed){
+            emergency();
+        }
         idleModeReader();
     }
 }
+
 void openDoor(){
 
     elevatorStop();
-    clearOrdersAtThisFloor(); //NOTE: agains spesifications
+    clearOrders();
 
     // start a timer and open the door open
     hardware_command_door_open(1);
     time_t timer_start = clock();
     time_t timer_end = clock();
 
-    // wait 3 sec without obstruction
+    // wait 3 sec without obstructions
     while(DOOR_OPEN_TIME > ((timer_end - timer_start)/CLOCKS_PER_SEC)){
         doorModeReader();
-        if(obstruction){
+        if(obstruction || stopButtonPressed){
+            if(stopButtonPressed){
+                stopButtonPressed = false;
+            }
             timer_start = clock();
         }
         timer_end = clock();
@@ -116,6 +134,7 @@ void openDoor(){
 void emergency(){
 
     if(atSomeFloor){
+        stopButtonPressed = false;
         openDoor();
         return;
     }

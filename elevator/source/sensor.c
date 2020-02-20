@@ -19,7 +19,7 @@ void runningModeReader(){
 }
 
 void emergencyModeReader(){
-    readOrdersInside();
+    readOrders();
     readStop();
 }
 
@@ -29,7 +29,6 @@ void doorModeReader(){
 }
 
 //************************************//
-
 
 void readOrders(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -41,16 +40,6 @@ void readOrders(){
 
         // register orders
         hasOrders = hasOrders || upOrders[i] || insideOrders[i] || downOrders[i];
-    }
-}
-
-void readOrdersInside(){
-    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-        // read order buttons
-        insideOrders[i] = insideOrders[i] || hardware_read_order(i,HARDWARE_ORDER_INSIDE);
-
-        // register orders
-        hasOrders = hasOrders || insideOrders[i];
     }
 }
 
