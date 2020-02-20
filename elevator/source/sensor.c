@@ -5,27 +5,32 @@
 
 void initModeReader(){
     readFloorSensors();
+    updateStopButtonLight();
 }
 
 void idleModeReader(){
     readOrders();
     readStop();
+    updateStopButtonLight();
 }
 
 void runningModeReader(){
     readOrders();
     readStop();
     readFloorSensors();
+    updateStopButtonLight();
 }
 
 void emergencyModeReader(){
     readOrders();
     readStop();
+    updateStopButtonLight();
 }
 
 void doorModeReader(){
     readObstruction();
     readStop();
+    updateStopButtonLight();
 }
 
 //************************************//
@@ -66,6 +71,10 @@ void readFloorSensors(){
 
 inline bool activeOrderThisFloor(){
     return upOrders[lastKnownFloor] || downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+}
+
+void updateStopButtonLight(){
+    hardware_command_stop_light(stopButtonPressed);
 }
 
 Direction getDirection(){
