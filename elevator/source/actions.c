@@ -34,7 +34,7 @@ void elevatorMoveTo(int targetFloor){
     if(lastKnownFloor > targetFloor){
         elevatorMove(DOWN);
         while(!atSomeFloor){
-            updateAllSensors();
+            readFloorSensors();
         }
         elevatorMoveTo(targetFloor);
         return;
@@ -42,7 +42,7 @@ void elevatorMoveTo(int targetFloor){
     if(lastKnownFloor < targetFloor){
         elevatorMove(UP);
         while(!atSomeFloor){
-            updateAllSensors();
+            readFloorSensors();
         }
         elevatorMoveTo(targetFloor);
         return;
@@ -61,7 +61,18 @@ void clearAllOrders(){
     }
 }
 
-static void clear_all_order_lights(){
+void clearAllOrdersAtThisFloor(){
+    int i = lastKnownFloor;
+    upOrders[i] = false;
+    downOrders[i] = false;
+    insideOrders[i] = false;
+
+    hardware_command_order_light(i,HARDWARE_ORDER_UP,0);
+    hardware_command_order_light(i,HARDWARE_ORDER_DOWN,0);
+hardware_command_order_light(i,HARDWARE_ORDER_INSIDE,0);
+}
+
+void clear_all_order_lights(){
     HardwareOrder order_types[3] = {
         HARDWARE_ORDER_UP,
         HARDWARE_ORDER_INSIDE,

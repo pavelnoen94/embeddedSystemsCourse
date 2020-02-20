@@ -7,7 +7,7 @@
 void Elevator(){
     startUp();
     while(true){
-        updateAllSensors();
+        readAll();
         
         if(emergencyState){
             emergency();

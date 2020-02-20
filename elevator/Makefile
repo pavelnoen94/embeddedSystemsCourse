@@ -1,4 +1,4 @@
-SOURCES := main.c
+SOURCES := main.c actions.c elevator.c modes.c sensor.c
 
 SOURCE_DIR := source
 BUILD_DIR := build
@@ -9,7 +9,7 @@ DRIVER_ARCHIVE := $(BUILD_DIR)/libdriver.a
 DRIVER_SOURCE := hardware.c io.c
 
 CC := gcc
-CFLAGS := -O0 -g3 -Wall -Werror -std=c11 -I$(SOURCE_DIR)
+CFLAGS := -O0 -g3 -Wall -std=c11 -I$(SOURCE_DIR)
 LDFLAGS := -L$(BUILD_DIR) -ldriver -lcomedi
 
 .DEFAULT_GOAL := elevator

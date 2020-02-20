@@ -20,40 +20,38 @@
  * @brief Static boolean array, where index 0-3 represents floor 1-4, and value @c true represents an order in direction @c UP at that floor.
  * 
  */
-bool upOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
+bool upOrders[HARDWARE_NUMBER_OF_FLOORS];
 /**
  * @brief Static boolean array, where index 0-3 represents floor 1-4, and value @c true represents an order in direction @c DOWN at that floor.
  * 
  */
-bool downOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
+bool downOrders[HARDWARE_NUMBER_OF_FLOORS];
 /**
  * @brief Static boolean array, where index 0-3 represents floor 1-4, and value @c true represents an order for that floor coming from inside the elevator.
  * 
  */
-bool insideOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
+bool insideOrders[HARDWARE_NUMBER_OF_FLOORS];
 /**
-<<<<<<< HEAD
-<<<<<<< HEAD
  * @brief Boolean variable telling whether the elevator is in the emergency state.
  * @see emergency()
  * 
  */
-bool emergencyState = false;
+bool emergencyState;
 /**
  * @brief Boolean variable telling whether there are any unfulfilled orders or not.
  * 
  */
-bool hasOrders = false;
+bool hasOrders;
 /**
  * @brief Boolean variable telling whether obstruction input is high or not.
  * 
  */
-bool obstruction = false;
+bool obstruction;
 /**
  * @brief Boolean variable telling whether the elevator is currently at a known floor. @c false if elevator is between floors.
  * 
  */
-bool atSomeFloor = false;
+bool atSomeFloor;
 /**
  * @brief The previous floor the elevator was known to be at.
  * 

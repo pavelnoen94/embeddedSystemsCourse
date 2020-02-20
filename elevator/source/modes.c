@@ -13,6 +13,18 @@ void startUp(){
         exit(1);
     }
 
+    // standard values
+    upOrders = {false};
+    downOrders = {false};
+    insideOrders = {false};
+
+    emergencyState = false;
+    hasOrders = false;
+    obstruction = false;
+    atSomeFloor = false;
+
+
+
     clear_all_order_lights();
     elevatorMove(UP);
     while(!atSomeFloor){
