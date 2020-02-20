@@ -33,17 +33,12 @@ static bool downOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
 static bool insideOrders[HARDWARE_NUMBER_OF_FLOORS] = {false};
 /**
 <<<<<<< HEAD
+<<<<<<< HEAD
  * @brief Boolean variable telling whether the elevator is in the emergency state.
  * @see emergency()
  * 
  */
 static bool emergencyState = false;
-=======
- * @brief Boolean variable telling whether stop button input is high or not.
- * 
- */
-static bool stopButtonPressed = false;
->>>>>>> Added doxygen documentation for elevator.h
 /**
  * @brief Boolean variable telling whether there are any unfulfilled orders or not.
  * 
