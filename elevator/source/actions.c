@@ -61,28 +61,6 @@ void clearAllOrders(){
     }
 }
 
-void clearOrdersAtThisFloor(){
-    // kill order lights inside
-    hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_INSIDE,0);
-    insideOrders[lastKnownFloor] = false;
-
-    if(direction == DOWN){
-        hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_DOWN,0);
-        downOrders[lastKnownFloor] = false;
-        return;
-    }
-    if(direction == UP){
-        hardware_command_order_light(lastKnownFloor,UP,0);
-        upOrders[lastKnownFloor] = false;
-        return;
-    }
-    if(direction == NONE){
-        hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_UP,0);
-        hardware_command_order_light(lastKnownFloor,HARDWARE_ORDER_DOWN,0);
-        upOrders[lastKnownFloor] = false;
-        downOrders[lastKnownFloor] = false;
-    }
-}
 static void clear_all_order_lights(){
     HardwareOrder order_types[3] = {
         HARDWARE_ORDER_UP,

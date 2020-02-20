@@ -5,31 +5,35 @@
 
 void initModeReader(){
     readFloorSensors();
+    updateStopButtonLight();
 }
 
 void idleModeReader(){
     readOrders();
     readStop();
+    updateStopButtonLight();
 }
 
 void runningModeReader(){
     readOrders();
     readStop();
     readFloorSensors();
+    updateStopButtonLight();
 }
 
 void emergencyModeReader(){
-    readOrdersInside();
+    readOrders();
     readStop();
+    updateStopButtonLight();
 }
 
 void doorModeReader(){
     readObstruction();
     readStop();
+    updateStopButtonLight();
 }
 
 //************************************//
-
 
 void readOrders(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -44,22 +48,12 @@ void readOrders(){
     }
 }
 
-void readOrdersInside(){
-    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-        // read order buttons
-        insideOrders[i] = insideOrders[i] || hardware_read_order(i,HARDWARE_ORDER_INSIDE);
-
-        // register orders
-        hasOrders = hasOrders || insideOrders[i];
-    }
-}
-
 void readObstruction(){
     obstruction = hardware_read_obstruction_signal();
 }
 
 void readStop(){
-    stopButtonPressed = stopButtonPressed || hardware_read_stop_signal(); // TODO: Change variable name to stopSignalSet
+    emergencyState = emergencyState || hardware_read_stop_signal();
 }
 
 void readFloorSensors(){
@@ -77,6 +71,10 @@ void readFloorSensors(){
 
 inline bool activeOrderThisFloor(){
     return upOrders[lastKnownFloor] || downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+}
+
+void updateStopButtonLight(){
+    hardware_command_stop_light(emergencyState = false);
 }
 
 Direction getDirection(){
