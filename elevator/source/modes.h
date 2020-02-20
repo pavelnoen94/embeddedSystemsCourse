@@ -7,10 +7,10 @@
  * 
  */
 
-void init();
+void startUp();
 void running();
 void idle();
 void openDoor();
-void stopped();
+void emergency();
 
 #endif

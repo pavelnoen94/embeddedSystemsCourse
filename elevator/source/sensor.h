@@ -9,11 +9,16 @@
  * 
  */
 
-void updateAllSensors();
-void readOrdersOnlyInside();
+void initModeReader();
+void idleModeReader();
+void runningModeReader();
+void emergencyModeReader()
+void doorModeReader();
 void readOrders();
-inline void readObstruction();
-inline bool activeOrderAtThisFloor();
+void readObstruction();
+void readStop();
+void readFloorSensors();
+inline bool activeOrderThisFloor();
+void updateStopButtonLight();
 Direction getDirection();
-
 #endif
