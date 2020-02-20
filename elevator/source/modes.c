@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include "hardware.h"
 #include "elevator.h"
-#include "status.h"
+#include "modes.h"
 #include "actions.h"
 #include "sensor.h"
 #include <time.h>
@@ -92,7 +92,7 @@ void idle(){
 void openDoor(){
 
     elevatorStop();
-    clearOrdersAtThisFloor();
+    clearOrdersAtThisFloor(); //NOTE: agains spesifications
 
     // start a timer and open the door open
     hardware_command_door_open(1);
@@ -102,7 +102,7 @@ void openDoor(){
     // wait 3 sec without obstruction
     while(DOOR_OPEN_TIME > ((timer_end - timer_start)/CLOCKS_PER_SEC)){
         readObstruction();
-        readOrdersOnly();
+        readOrders();
         if(obstruction){
             timer_start = clock();
         }

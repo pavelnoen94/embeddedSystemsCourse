@@ -1,5 +1,5 @@
-#ifndef ELEVATOR_STATUS_H
-#define ELEVATOR_STATUS_H
+#ifndef ELEVATOR_MODES_H
+#define ELEVATOR_MODES_H
 
 void init();
 void running();
