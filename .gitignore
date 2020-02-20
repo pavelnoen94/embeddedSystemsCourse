@@ -54,15 +54,16 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-#gdb
+# gdb
 .gdbinit
 gdb/programs/
 docs/*
 
-#binaries to be excluded
+# binaries
 communism
 gdb/programs/*
 makefile/build/*
 
-# Exclude documentation for elevator
+# Elevator
 elevator/docs/*
+elevator/.vscode/*
