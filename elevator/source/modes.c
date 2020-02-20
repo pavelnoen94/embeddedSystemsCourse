@@ -6,7 +6,7 @@
 #include "sensor.h"
 #include <time.h>
 
-void init(){
+void startUp(){
     int error = hardware_init();
     if(error != 0){
         fprintf(stderr, "Unable to initialize hardware\n");
@@ -63,12 +63,12 @@ void running(){
     if(direction == DOWN){
         {
             int i = lastKnownFloor - 1;
-        if(i != 0){
-            for( ; i != 0; i--){
-                if(downOrders[i] || insideOrders[i]){
-                    return;
+            if(i != 0){
+                for( ; i != 0; i--){
+                    if(downOrders[i] || insideOrders[i]){
+                        return;
+                        }
                     }
-                }
             }
         }
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -113,7 +113,7 @@ void openDoor(){
     return;
 
 }
-void stopped(){
+void emergency(){
 
     if(atSomeFloor){
         openDoor();
@@ -123,7 +123,7 @@ void stopped(){
     elevatorStop();
     clearAllOrders();
     while(!hasOrders){
-        stoppedModeReader();
+        emergencyModeReader();
     }
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         if(insideOrders[i]){

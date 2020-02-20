@@ -4,12 +4,12 @@
 #include "sensor.h"
 
 void Elevator(){
-    init();
+    startUp();
     while(true){
         updateAllSensors();
         
         if(stopButtonPressed){
-            stopped();
+            emergency();
             return;
         }
         if(!hasOrders){

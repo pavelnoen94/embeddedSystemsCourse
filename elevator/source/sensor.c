@@ -18,7 +18,7 @@ void runningModeReader(){
     readFloorSensors();
 }
 
-void stoppedModeReader(){
+void emergencyModeReader(){
     readOrdersInside();
     readStop();
 }
