@@ -4,16 +4,16 @@
 #include "sensor.h"
 #include "actions.h"
 
-void elevatorMove(Direction direction){
-    if(direction == DOWN){
+void elevatorMove(Direction dir){
+    if(dir == DOWN){
         hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
         return;
     }
-    if(direction == UP){
+    if(dir == UP){
         hardware_command_movement(HARDWARE_MOVEMENT_UP);
         return;
     }
-    if(direction == NONE){
+    if(dir == NONE){
         elevatorStop();
         return;
     }

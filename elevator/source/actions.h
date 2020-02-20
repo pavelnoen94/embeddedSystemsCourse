@@ -1,6 +1,6 @@
 #ifndef ELEVATOR_ACTIONS_H
 #define ELEVATOR_ACTIONS_H
-
+#include "elevator.h"
 /**
  * @file
  * @brief Library of functions pertaining to actions the elevator can take, such as elevatorMove() or clearAllOrders()
@@ -16,5 +16,4 @@ void elevatorStop();    // rename to stopElevator
 void elevatorMoveTo(int); // Used only by insideOrders
 void clearAllOrders();
 void clearOrdersAtThisFloor();
-static void clear_all_order_lights();
 #endif

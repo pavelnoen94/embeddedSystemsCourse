@@ -5,14 +5,14 @@
 
 /**
  * @file
- * @brief 
+ * @brief contains functions that reads sensors
  * 
  */
 
 void initModeReader();
 void idleModeReader();
 void runningModeReader();
-void emergencyModeReader()
+void emergencyModeReader();
 void doorModeReader();
 void readOrders();
 void readObstruction();
