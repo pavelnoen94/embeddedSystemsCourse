@@ -3,12 +3,15 @@
 
 /**
  * @file
- * @brief 
+ * @brief Library of functions pertaining to actions the elevator can take, such as elevatorMove() or clearAllOrders()
  * 
  */
 
+/**
+ * @brief Commands elevator to move in input @p Direction
+ * @param[in] Direction Direction elevator shall move in. 
+ */
 void elevatorMove(Direction);
-void elevatorMove();
 void elevatorStop();    // rename to stopElevator
 void elevatorMoveTo(int); // Used only by insideOrders
 void clearAllOrders();
