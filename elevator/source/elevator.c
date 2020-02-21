@@ -5,18 +5,5 @@
 #include "actions.h"
 
 void Elevator(){
-    startUp();
-    readOrders();
-    readStop();
 
-    while(true){
-        readAll();
-        if(emergencyState){
-            emergency();
-        }
-        if(!hasOrders){
-            idle();
-        }
-        running();
-    }
 }

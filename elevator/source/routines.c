@@ -1,4 +1,7 @@
 #include "elevator.h"
+#include "hardware.h"
+#include "sensor.h"
+#include "routines.h"
 
 void readAllSensors()
 {
@@ -50,7 +53,7 @@ void clearAllOrders(){
         downOrders[i] = false;
         insideOrders[i] = false;
 
-        hardware_commareadObsnd_order_light(i,HARDWARE_ORDER_UP,0);
+        hardware_command_order_light(i,HARDWARE_ORDER_UP,0);
         hardware_command_order_light(i,HARDWARE_ORDER_DOWN,0);
         hardware_command_order_light(i,HARDWARE_ORDER_INSIDE,0);
     }
@@ -64,12 +67,19 @@ void closeDoor(){
     hardware_command_door_open(false);
 }
 
-
 void clearAllOrdersAtThisFloor(){
-    if(!onAFloor()){
+    if(!atSomeFloor()){
         return;
     }
-    int i = lastKnownFloor;
+    clearOrders(lastKnownFloor);
+}
+
+void clearOrders(int floor){
+    if(!isValidFloor(floor)){
+        printf("Error: invalid param in clearOrdersAtFloor(%d)",floor);
+    
+    }
+    int i = floor;
     upOrders[i] = false;
     downOrders[i] = false;
     insideOrders[i] = false;
@@ -79,17 +89,8 @@ void clearAllOrdersAtThisFloor(){
     hardware_command_order_light(i,HARDWARE_ORDER_INSIDE,0);
 }
 
-bool onAFloor(){
-    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-        if(hardware_read_floor_sensor(i)){
-            return true;
-        }
-    }
-    return false;
-}
-
 bool activeOrderThisFloor(){
-    if(onAFloor()){
+    if(atSomeFloor()){
         return upOrders[lastKnownFloor] || downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
     }
     return -1;
@@ -103,13 +104,6 @@ int getTargetFloor(){
     return targetFloor;
 }
 
-void setTargetFloor(int floor){
-    if(!isValidFloor(floor)){
-        printf("Error: illeagal argument in setTargetFloor(%d)\n", floor);
-    }
-    targetFloor = floor;
-}
-
 bool isValidFloor(int floor){
     if(floor < 0 || floor > HARDWARE_NUMBER_OF_FLOORS){
         return false;
@@ -117,8 +111,17 @@ bool isValidFloor(int floor){
     return true;
 }
 
+void setTargetFloor(int floor){
+    if(!isValidFloor(floor)){
+        printf("Error: illeagal argument in setTargetFloor(%d)\n", floor);
+    }
+    targetFloor = floor;
+}
+
+
+
 Direction getDirection(int targetFloor){
-    if(!isValidFloor){
+    if(!isValidFloor(targetFloor)){
         printf("Error: illeagal argument in getDirection(%d)\n", targetFloor);
     }
     if(targetFloor == lastKnownFloor){
@@ -139,28 +142,34 @@ void findTargetFloor(){
         }
     }
 }
+// working
+bool onFloor(int floor){
+    return hardware_read_floor_sensor(floor);
+}
 
+// working
 bool checkEmergency(){
     emergencyState = emergencyState || readStop();
     hardware_command_stop_light(emergencyState);
     return emergencyState;
 }
 
+// wokring
 void resetEmergency(){
     emergencyState = false;
     hardware_command_stop_light(false);
 }
+// working
 void updateObstruction(){
     obstruction = readObstruction();
 }
 
+// working
 void readFloorSensors(){
-    atSomeFloor = false;
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
 
         // read floor sensors. Set correct floor light
         if(hardware_read_floor_sensor(i)){
-            atSomeFloor = true;
             lastKnownFloor = i;
             hardware_command_floor_indicator_on(i);
             return;
@@ -169,6 +178,7 @@ void readFloorSensors(){
     }
 }
 
+// working
 void getOrders(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
 

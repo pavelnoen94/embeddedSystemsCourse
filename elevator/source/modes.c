@@ -7,6 +7,7 @@
 #include "sensor.h"
 
 void startUp(){
+/*
     elevatorStop();
     int error = hardware_init();
     if(error != 0){
@@ -35,8 +36,10 @@ void startUp(){
         initModeReader();
     }
     elevatorStop();
+*/
 }
 void running(){
+    /*
     status = RUN;
 
     if(!hasOrders){
@@ -52,14 +55,7 @@ void running(){
             return;
         }
 
-        /**
-         * We don't have a direction. That mean that the order is the first.
-         * The order desides what direction the elevator is going.
-         * if the order is an inside order then the direction is set
-         * relative to the position of the elevator. 
-         */
 
-        // check inside order
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(insideOrders[i]){
                 direction = getDirection(getTargetFloor());
@@ -122,8 +118,10 @@ void running(){
     }
     // no more orders. return
     return;
+    */
 }
 void idle(){
+    /*
     status = IDLE;
 
     while(!hasOrders){
@@ -132,8 +130,10 @@ void idle(){
         }
         idleModeReader();
     }
+    */
 }
 
+/*
 void openDoor(){
     status = OPENDOOR;
 
@@ -167,7 +167,9 @@ void openDoor(){
     hardware_command_door_open(0);
     return;
 }
+    */
 void emergency(){
+    /*
     status = STOP;
 
     if(atSomeFloor){
@@ -184,4 +186,5 @@ void emergency(){
     elevatorMoveTo(getTargetFloor());
     emergencyState = false;
     return;
+    */
 }

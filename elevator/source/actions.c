@@ -4,69 +4,10 @@
 #include "elevator.h"
 #include "sensor.h"
 #include "actions.h"
-
-void elevatorMoveTo(int targetFloor){
-    if(lastKnownFloor == targetFloor){
-        openDoor();
-        return;
-    }
-
-    while(lastKnownFloor != targetFloor){
-        targetFloor > lastKnownFloor ? elevatorMoveUp() : elevatorMoveDown();
-    }
-}
-
-void elevatorMoveUp(){
-    
-    // move to next floor
-    hardware_command_movement(HARDWARE_MOVEMENT_UP);
-    int lastFloor = lastKnownFloor;
-    while(lastFloor == lastKnownFloor){
-            readStop();
-        if(emergencyState){
-            emergency();
-            return;
-        }else{
-            
-        
-        readFloorSensors();
-            readOrders();
-        }
-    }
-    // floor reached
-    if(insideOrders[lastKnownFloor] || downOrders[lastKnownFloor] || insideOrders[lastKnownFloor]){
-        clearAllOrdersAtThisFloor();
-        openDoor();
-    }
-    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-}
-
-void elevatorMoveDown(int numberOfFloors){
-    if(numberOfFloors < 1){
-        printf("Error: elevatorMoveDown called with illegal argument %d", numberOfFloors);
-        exit(1);
-    }
-    
-    hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
-    int targetFloor = lastKnownFloor - numberOfFloors;
-
-    // move to next floor
-    while(targetFloor != lastKnownFloor){
-        readAll();
-    }
-    // floor reached
-    
-    if(insideOrders[lastKnownFloor] || downOrders[lastKnownFloor] || insideOrders[lastKnownFloor]){
-        clearAllOrdersAtThisFloor();
-        openDoor();
-    }
-    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-}
-
-
+#include "routines.h"
 
 void serveFloor(){
-    if(!onAFloor()){
+    if(!atSomeFloor()){
         return;
     }
     elevatorStop();
@@ -81,18 +22,10 @@ void serveFloor(){
         if(readObstruction() || readStop()){
             // reset timer
             startTime = clock() * 1000 / CLOCKS_PER_SEC;
-
-            if(emergencyState){
-                emergencyState = false;
-            }
         }
-
     }
     // close the door
-    hardware_command_door_open(0);
+    closeDoor();
     return;
-
-
-
 
 }

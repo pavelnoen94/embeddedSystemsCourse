@@ -1,9 +1,4 @@
 #include <stdbool.h>
-#include <time.h>
-#include "hardware.h"
-#include "elevator.h"
-#include "sensor.h"
-
 
 bool readObstruction(){
     return hardware_read_obstruction_signal();

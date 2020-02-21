@@ -45,11 +45,7 @@ bool hasOrders;
  * 
  */
 bool obstruction;
-/**
- * @brief Boolean variable telling whether the elevator is currently at a known floor. @c false if elevator is between floors.
- * 
- */
-bool atSomeFloor;
+
 /**
  * @brief The previous floor the elevator was known to be at.
  * 

@@ -9,20 +9,6 @@
  * 
  */
 
-void readAll();
-void initModeReader();
-void idleModeReader();
-void runningModeReader();
-void emergencyModeReader();
-void doorModeReader();
-void readOrders();
-void readObstruction();
-void readStop();
-void readFloorSensors();
-inline bool activeOrderThisFloor();
-void updateStopButtonLight();
-int getFloorNumber();
-Direction getDirection(int targetFloor);
-int getTargetFloor();
-bool emergencyPressed();
+bool readObstruction();
+bool readStop();
 #endif

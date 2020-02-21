@@ -11,10 +11,12 @@
  * @brief Commands elevator to move in input @p Direction
  * @param[in] Direction Direction elevator shall move in. 
  */
-void elevatorMove(Direction);
-void elevatorStop();    // rename to stopElevator
-void elevatorMoveTo(int); // Used only by insideOrders
-void clearAllOrders();
-void clearAllOrdersAtThisFloor();
-void clear_all_order_lights();
+
+void elevatorMoveTo(int targetFloor);
+
+void elevatorMoveUp();
+
+void elevatorMoveDown(int numberOfFloors);
+
+void serveFloor();
 #endif
