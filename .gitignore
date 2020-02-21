@@ -70,3 +70,6 @@ elevator/docs/*
 # VS Code Settingsfile
 .vscode/
 elevator/.vscode/
+
+# Remote test
+buildRemoteley.sh
