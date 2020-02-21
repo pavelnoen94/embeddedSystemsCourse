@@ -1,4 +1,4 @@
-SOURCES := main.c actions.c elevator.c modes.c sensor.c routines.c
+SOURCES := main.c actions.c elevator.c modes.c sensor.c routines.c readers.c
 
 SOURCE_DIR := source
 BUILD_DIR := build

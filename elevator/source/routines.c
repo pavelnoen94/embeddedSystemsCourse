@@ -199,6 +199,7 @@ void readFloorSensors(){
 
 // working
 void getOrders(){
+    hasOrders = false;
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
 
         // read order buttons

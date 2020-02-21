@@ -5,9 +5,10 @@
 #include "modes.h"
 #include "actions.h"
 #include "sensor.h"
+#include "routines.h"
+#include "reader.h"
 
 void startUp(){
-/*
     elevatorStop();
     int error = hardware_init();
     if(error != 0){
@@ -15,123 +16,73 @@ void startUp(){
         exit(1);
     }
 
-    // standard values
-    for(int i =0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-        upOrders[i] = false;
-        downOrders[i] = false;
-        insideOrders[i] = false;
+    // init
+    readFloorSensors();
+    if(!atSomeFloor()){
+        elevatorMoveUp();
+        while(!atSomeFloor()){
+            readFloorSensors();
+        }
     }
-    
-
-    emergencyState = false;
-    hasOrders = false;
-    obstruction = false;
-    atSomeFloor = false;
-
-
-
-    clearAllOrders();
-    elevatorMove(UP);
-    while(!atSomeFloor){
-        initModeReader();
-    }
-    elevatorStop();
-*/
+    elevatorStop(); // location known, init complete
 }
-void running(){
-    /*
-    status = RUN;
 
-    if(!hasOrders){
-        direction = NONE;
-        return;
+void idle(){
+    printf("idle()");
+    status = IDLE;
+    while(!hasOrders){
+        getOrders();
+        readStop();
     }
+}
 
-    if(direction == NONE){
-        // direction unknown and we have an order => first order.
-
-        if(lastKnownFloor = getTargetFloor()){
-            openDoor();
-            return;
-        }
-
-
-        for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-            if(insideOrders[i]){
-                direction = getDirection(getTargetFloor());
-                return;
-            }
-        }
-
-        // 
-
-
-
-        // set direction to the floor and return
-        direction = getDirection(getTargetFloor());
-        return;
+void serving(){
+    printf("serving()\n");
+    status = SERVING;
+    while(hasOrders){
+        getOrders();
+        findTargetFloor();        
+        gotoFloor(targetFloor);
+        clearAllOrdersAtThisFloor();
+        readStop();
     }
+}
+
+void gotoFloor(int floor){
+    printf("gotoFloor(%d)\n",floor);
+    status = MOVING;
+    if(!isValidFloor(floor)){
+        printf("Error: invalid argument in gotoFloor(%d)\n", floor);
+    }
+    targetFloor = floor;
+    direction = getDirection(targetFloor);
 
     if(direction == UP){
-
-        // check for orders in current direction
-        for(int i = lastKnownFloor + 1; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-            if(insideOrders[i] || upOrders[i]){
-
-                elevatorMoveUp();
-                return;
-            }
-
-        }
-        // check for orders in opposite direction
-        for(int i = HARDWARE_NUMBER_OF_FLOORS - 1; i != 0; i--){
-            if(insideOrders[i] || downOrders[i]){
-                elevatorMoveTo(i);
-
-                clearAllOrdersAtThisFloor();
-                return;
-            }
-        }
+        elevatorMoveUp();
     }
     if(direction == DOWN){
-        {
-            // check for orders in current direction
-            int i = lastKnownFloor - 1;
-            if(i != 0){
-                for( ; i != 0; i--){
-                    if(downOrders[i] || insideOrders[i]){
-                        return;
-                        }
-                    }
-            }
-        }
-        // check for orders in oposite direction
-        for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-            if(upOrders[i] || insideOrders[i]){
-                elevatorMoveTo(i);
-                direction = UP;
-                clearAllOrdersAtThisFloor();
-                openDoor();
-                return;
-            }
-        }
+        elevatorMoveDown();
     }
-    // no more orders. return
-    return;
-    */
-}
-void idle(){
-    /*
-    status = IDLE;
+    if(direction == NONE){
+        return;
+    }
+    bool targetReached = false;
+    while(!targetReached){
+       goToFloorReader();
 
-    while(!hasOrders){
-        if(emergencyState){
-            emergency();
+        if(lastKnownFloor == targetFloor){
+            targetReached = true;
         }
-        idleModeReader();
+
+        if(atSomeFloor()){
+            clearAllOrdersAtThisFloor();
+        }
+
     }
-    */
+    elevatorStop();
+    
 }
+
 
 /*
 void openDoor(){

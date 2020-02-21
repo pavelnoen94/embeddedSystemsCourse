@@ -8,8 +8,9 @@
  */
 
 void startUp();
-void running();
+void serving();
 void idle();
+void gotoFloor(int floor);
 void openDoor();
 void emergency();
 

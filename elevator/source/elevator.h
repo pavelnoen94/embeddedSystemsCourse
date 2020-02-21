@@ -87,7 +87,8 @@ void Elevator();
 
 typedef enum{
     IDLE,
-    RUN,
+    SERVING,
+    MOVING,
     OPENDOOR,
     STOP
 } Status;
