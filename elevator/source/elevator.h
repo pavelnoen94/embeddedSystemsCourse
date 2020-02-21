@@ -14,8 +14,6 @@
 
 #define DOOR_OPEN_TIME 3
 
-
-
 /**
  * @brief Static boolean array, where index 0-3 represents floor 1-4, and value @c true represents an order in direction @c UP at that floor.
  * 
@@ -90,4 +88,14 @@ Direction direction;
  * 
  */
 void Elevator();
+
+typedef enum{
+    IDLE,
+    RUN,
+    OPENDOOR,
+    STOP
+} Status;
+Status status;
+int targetFloor;
+
 #endif

@@ -1,10 +1,10 @@
 #include <stdbool.h>
+#include <time.h>
 #include "hardware.h"
 #include "elevator.h"
 #include "modes.h"
 #include "actions.h"
 #include "sensor.h"
-#include <time.h>
 
 void startUp(){
     elevatorStop();
@@ -29,7 +29,7 @@ void startUp(){
 
 
 
-    clear_all_order_lights();
+    clearAllOrders();
     elevatorMove(UP);
     while(!atSomeFloor){
         initModeReader();
@@ -37,51 +37,61 @@ void startUp(){
     elevatorStop();
 }
 void running(){
+    status = RUN;
+
     if(!hasOrders){
         direction = NONE;
         return;
     }
-    if(direction == NONE){
-        // direction unknown and we have an order
-        elevatorMove(getDirection());
-        
-        while(!atSomeFloor && !lastKnownFloor ){ // not current floor 
-            runningModeReader();
-            if(emergencyState){
-                emergency();
-            }
-        }
-        // floor reached
-        clearAllOrdersAtThisFloor();
-        openDoor();
-        return;
-    }
 
-    elevatorMove(direction);
-    while(!atSomeFloor){
-        runningModeReader();
-        if(emergencyState){
-            emergency();
+    if(direction == NONE){
+        // direction unknown and we have an order => first order.
+
+        if(lastKnownFloor = getTargetFloor()){
+            openDoor();
             return;
         }
-    }
-    clearAllOrdersAtThisFloor();
-    openDoor();
 
-    // check if there is any orders left
+        /**
+         * We don't have a direction. That mean that the order is the first.
+         * The order desides what direction the elevator is going.
+         * if the order is an inside order then the direction is set
+         * relative to the position of the elevator. 
+         */
 
-    if(direction == UP){
-        // check for orders in current direction
-        for(int i = lastKnownFloor + 1; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-            if(upOrders[i] || insideOrders[i]){
+        // check inside order
+        for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+            if(insideOrders[i]){
+                direction = getDirection(getTargetFloor());
                 return;
             }
         }
+
+        // 
+
+
+
+        // set direction to the floor and return
+        direction = getDirection(getTargetFloor());
+        return;
+    }
+
+    if(direction == UP){
+
+        // check for orders in current direction
+        for(int i = lastKnownFloor + 1; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+            if(insideOrders[i] || upOrders[i]){
+
+                elevatorMoveUp();
+                return;
+            }
+
+        }
         // check for orders in opposite direction
         for(int i = HARDWARE_NUMBER_OF_FLOORS - 1; i != 0; i--){
-            if(downOrders[i] || insideOrders[i]){
+            if(insideOrders[i] || downOrders[i]){
                 elevatorMoveTo(i);
-                direction = DOWN;
+
                 clearAllOrdersAtThisFloor();
                 return;
             }
@@ -114,6 +124,8 @@ void running(){
     return;
 }
 void idle(){
+    status = IDLE;
+
     while(!hasOrders){
         if(emergencyState){
             emergency();
@@ -123,33 +135,40 @@ void idle(){
 }
 
 void openDoor(){
+    status = OPENDOOR;
 
     elevatorStop();
     clearAllOrdersAtThisFloor();
 
-    // start a timer and open the door open
-    hardware_command_door_open(1);
-    time_t timer_start = clock();
-    time_t timer_end = clock();
 
-    // wait 3 sec without obstructions
-    while(DOOR_OPEN_TIME > ((timer_end - timer_start)/CLOCKS_PER_SEC)){
+    // open door and start timer
+    hardware_command_door_open(1);
+    int startTime = clock() * 1000 / CLOCKS_PER_SEC;
+    int endTime = startTime + DOOR_OPEN_TIME*1000;
+
+
+    startTime = clock() * 1000 / CLOCKS_PER_SEC;
+
+    while (startTime < endTime){
         doorModeReader();
-        if(obstruction || emergencyState){
+        if(obstruction || emergencyPressed()){
+            // reset timer
+            startTime = clock() * 1000 / CLOCKS_PER_SEC;
+
             if(emergencyState){
                 emergencyState = false;
             }
-            timer_start = clock();
         }
-        timer_end = clock();
-    }
 
+        
+
+    }
     // close the door
     hardware_command_door_open(0);
     return;
-
 }
 void emergency(){
+    status = STOP;
 
     if(atSomeFloor){
         emergencyState = false;
@@ -162,6 +181,7 @@ void emergency(){
     while(!hasOrders){
         emergencyModeReader();
     }
+    elevatorMoveTo(getTargetFloor());
     emergencyState = false;
     return;
 }

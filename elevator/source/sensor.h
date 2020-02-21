@@ -21,5 +21,8 @@ void readStop();
 void readFloorSensors();
 inline bool activeOrderThisFloor();
 void updateStopButtonLight();
-Direction getDirection();
+int getFloorNumber();
+Direction getDirection(int targetFloor);
+int getTargetFloor();
+bool emergencyPressed();
 #endif

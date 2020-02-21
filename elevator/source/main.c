@@ -4,6 +4,7 @@
 #include "hardware.h"
 #include <sys/types.h>
 #include <unistd.h>
+#include <time.h>
 
 static void clear_all_order_lights(){
     HardwareOrder order_types[3] = {
@@ -22,15 +23,18 @@ static void clear_all_order_lights(){
 
 static void sigint_handler(int sig){
     (void)(sig);
-    printf("Terminating elevator\n");
+    printf("\nResieved terminating signal %d, Terminating elevator\n", sig);
     hardware_command_movement(HARDWARE_MOVEMENT_STOP);
     exit(0);
 }
 
 int main(){
-    printf("py pid is: %d\n", getpid());
+    printf("\nmy pid is: %d\n", getpid());
+
+    // termination and crash handlers
     signal(SIGINT, sigint_handler);
     signal(SIGTERM, sigint_handler);
+    signal(SIGSEGV, sigint_handler);
 
     printf("=== Example Program ===\n");
     printf("Press the stop button on the elevator panel to exit\n");
@@ -39,3 +43,4 @@ int main(){
 
     return 0;
 }
+
