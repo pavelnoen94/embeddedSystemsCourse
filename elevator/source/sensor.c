@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "hardware.h"
 
 bool readObstruction(){
     return hardware_read_obstruction_signal();

@@ -37,15 +37,6 @@ void doorModeReader(){
     getOrders();
 }
 
-void elevatorStop(){
-    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-}
-void elevatorMoveUp(){
-    hardware_command_movement(HARDWARE_MOVEMENT_UP);
-}
-void elevatorMoveDown(){
-    hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
-}
 
 void clearAllOrders(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -133,7 +124,7 @@ Direction getDirection(int targetFloor){
     }
     return DOWN;
 }
-
+// working
 void findTargetFloor(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         if(upOrders[i] || downOrders[i] || insideOrders[i]){
@@ -142,6 +133,34 @@ void findTargetFloor(){
         }
     }
 }
+bool atSomeFloor(){
+    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+        if(onFloor(i)){
+            return true;
+        }
+        
+    }
+    return false;
+}
+bool orderAt(int floor){
+    getOrders();
+    return insideOrders[floor] || upOrders[floor] || downOrders[floor];
+}
+// working
+void elevatorStop(){
+    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+}
+
+// working
+void elevatorMoveUp(){
+    hardware_command_movement(HARDWARE_MOVEMENT_UP);
+}
+
+// working
+void elevatorMoveDown(){
+    hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
+}
+
 // working
 bool onFloor(int floor){
     return hardware_read_floor_sensor(floor);

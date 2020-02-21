@@ -16,7 +16,7 @@ void elevatorMoveTo(int targetFloor);
 
 void elevatorMoveUp();
 
-void elevatorMoveDown(int numberOfFloors);
+void gotoFloor(int floor);
 
 void serveFloor();
 #endif

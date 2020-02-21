@@ -20,6 +20,8 @@ void clearAllOrders();
 
 void openDoor();
 
+bool orderAt(int floor);
+
 void closeDoor();
 
 void clearAllOrdersAtThisFloor();

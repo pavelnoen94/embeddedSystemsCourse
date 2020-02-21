@@ -29,3 +29,27 @@ void serveFloor(){
     return;
 
 }
+
+void gotoFloor(int floor){
+    if(!isValidFloor(floor)){
+        printf("Error: invalid argument in gotoFloor(%d)", floor);
+    }
+    targetFloor = floor;
+    direction = getDirection(targetFloor);
+
+    if(direction == UP){
+        elevatorMoveUp();
+    }
+    if(direction == DOWN){
+        elevatorMoveDown();
+    }
+    if(direction == NONE){
+        return;
+    }
+    while(lastKnownFloor != targetFloor){
+        getOrders();
+        readFloorSensors();   
+    }
+    elevatorStop();
+    
+}

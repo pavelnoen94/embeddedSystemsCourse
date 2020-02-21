@@ -7,6 +7,7 @@
 #include <time.h>
 #include "hardware.h"
 #include "routines.h"
+#include "actions.h"
 
 static void sigint_handler(int sig){
     (void)(sig);
@@ -20,7 +21,7 @@ int main(){
 
     // termination and crash handlers
     signal(SIGINT, sigint_handler);
-    signal(SIGTERM, sigint_handler);
+    // signal(SIGTERM, sigint_handler);
     signal(SIGSEGV, sigint_handler);
 
     elevatorStop();
@@ -30,15 +31,27 @@ int main(){
         exit(1);
     }
 
-    elevatorMoveUp();
-    while(1){
-        readFloorSensors();
-        if(onFloor(3)){
-            elevatorMoveDown();
+    // init
+    readFloorSensors();
+    if(!atSomeFloor()){
+        elevatorMoveUp();
+        while(!atSomeFloor()){
+            readFloorSensors();
         }
-        if(onFloor(0)){
-            elevatorMoveUp();
-        }  
+    }
+    elevatorStop(); // location known, init complete
+    printf("\ninit complete!\n");
+    printf("\ni know I'm at floor %d\n", lastKnownFloor);
+    
+    while(1){
+        while(!hasOrders){
+            getOrders();
+        }
+        findTargetFloor();        
+        gotoFloor(targetFloor);
+        clearAllOrdersAtThisFloor();
+        getOrders();
+     
     }
 
     return 0;
