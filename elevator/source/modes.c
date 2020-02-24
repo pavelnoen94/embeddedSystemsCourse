@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <signal.h>
 #include <time.h>
 #include "hardware.h"
 #include "elevator.h"
@@ -8,15 +9,30 @@
 #include "routines.h"
 #include "reader.h"
 
+static void sigint_handler(int sig){
+    (void)(sig);
+    printf("\nResieved terminating signal %d, Terminating elevator\n", sig);
+    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+    exit(0);
+}
+
 void startUp(){
-    elevatorStop();
+    // connect to hardware
     int error = hardware_init();
     if(error != 0){
         fprintf(stderr, "Unable to initialize hardware\n");
         exit(1);
     }
 
-    // init
+    elevatorStop();
+    
+    // crash handling
+    printf("\nTo terminalte program press ctrl+c or type 'kill -9 %d'\n", getpid());
+    signal(SIGINT, sigint_handler);
+    signal(SIGTERM, sigint_handler);
+    signal(SIGSEGV, sigint_handler);
+
+    // find floor
     readFloorSensors();
     if(!atSomeFloor()){
         elevatorMoveUp();
@@ -24,7 +40,9 @@ void startUp(){
             readFloorSensors();
         }
     }
-    elevatorStop(); // location known, init complete
+
+    printf("\ninit complete!\n");
+    elevatorStop();
 }
 
 void idle(){
@@ -49,39 +67,69 @@ void serving(){
 }
 
 void gotoFloor(int floor){
-    printf("gotoFloor(%d)\n",floor);
-    status = MOVING;
     if(!isValidFloor(floor)){
-        printf("Error: invalid argument in gotoFloor(%d)\n", floor);
+        printf("\nError: invalid argument in gotoFloor(%d)\n", floor);
     }
-    targetFloor = floor;
-    direction = getDirection(targetFloor);
+    status = MOVING;
+
+    setTargetFloor(floor);
+    direction = getDirection(getTargetFloor());
 
     if(direction == UP){
         elevatorMoveUp();
     }
+
     if(direction == DOWN){
         elevatorMoveDown();
     }
+
     if(direction == NONE){
         return;
     }
+
     bool targetReached = false;
     while(!targetReached){
-       goToFloorReader();
+        readFloorSensors();
+        getOrders();
 
-        if(lastKnownFloor == targetFloor){
+        if(lastKnownFloor == getTargetFloor()){
             targetReached = true;
+            clearAllOrdersAtThisFloor();
+            serveFloor();
         }
 
+
         if(atSomeFloor()){
-            clearAllOrdersAtThisFloor();
+            if(direction == UP && (upOrders[lastKnownFloor] || insideOrders[lastKnownFloor])){
+                
+            }
         }
 
     }
     elevatorStop();
     
 }
+
+void emergency(){
+
+    if(atSomeFloor()){
+        openDoor();
+        return;
+    }
+
+    // between floors
+    elevatorStop();
+    status = STOP;
+    clearAllOrders();
+
+    while(!hasOrders){
+        emergencyModeReader();
+    }
+    elevatorMoveTo(getTargetFloor());
+    status = IDLE;
+    return;
+}
+
 
 
 /*
@@ -119,23 +167,3 @@ void openDoor(){
     return;
 }
     */
-void emergency(){
-    /*
-    status = STOP;
-
-    if(atSomeFloor){
-        emergencyState = false;
-        openDoor();
-        return;
-    }
-    // between floors
-    elevatorStop();
-    clearAllOrders();
-    while(!hasOrders){
-        emergencyModeReader();
-    }
-    elevatorMoveTo(getTargetFloor());
-    emergencyState = false;
-    return;
-    */
-}

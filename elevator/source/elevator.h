@@ -63,6 +63,18 @@ typedef enum {
     DOWN
 } Direction;
 
+
+
+/**
+ * @brief Structure to remember if the elevator above or below a sertain floor
+ * 
+ */
+typedef struct{
+    int lastKnownFloor;
+    bool above;
+} Position;
+Position position;
+
 /**
  * @brief Global variable; current elevator direction.
  * 

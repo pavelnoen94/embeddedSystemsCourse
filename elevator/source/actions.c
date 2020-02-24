@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <time.h>
 #include "hardware.h"
 #include "elevator.h"
@@ -19,14 +20,14 @@ void serveFloor(){
     while (startTime < endTime){
         getOrders();
 
-        if(readObstruction() || readStop()){
+        if(readObstruction() || readStop() || orderAt(getLastKnownFloor())){
             // reset timer
             startTime = clock() * 1000 / CLOCKS_PER_SEC;
+            clearAllOrdersAtThisFloor();
         }
     }
-    // close the door
+
     closeDoor();
     return;
 
 }
-

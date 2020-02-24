@@ -3,41 +3,6 @@
 #include "sensor.h"
 #include "routines.h"
 
-void readAllSensors()
-{
-    readFloorSensors();
-    readObstruction();
-    getOrders();
-    readStop();
-}
-
-void initModeReader(){
-    readFloorSensors();
-}
-
-void idleModeReader(){
-    getOrders();
-    readStop();
-}
-
-void runningModeReader(){
-    getOrders();
-    readStop();
-    readFloorSensors();
-}
-
-void emergencyModeReader(){
-    getOrders();
-    readStop();
-}
-
-void doorModeReader(){
-    readObstruction();
-    readStop();
-    getOrders();
-}
-
-
 void clearAllOrders(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         upOrders[i] = false;
@@ -95,22 +60,32 @@ int getTargetFloor(){
     return targetFloor;
 }
 
-bool isValidFloor(int floor){
-    if(floor < 0 || floor > HARDWARE_NUMBER_OF_FLOORS){
-        return false;
-    }
-    return true;
-}
-
 void setTargetFloor(int floor){
     if(!isValidFloor(floor)){
         printf("Error: illeagal argument in setTargetFloor(%d)\n", floor);
     }
     targetFloor = floor;
 }
+// not tested
+bool ordersInDirection(Direction dir, int fromFloor){
+    if(dir == UP){
+        for (int i = fromFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+            if(upOrders[i] || insideOrders[i]){
+                return true;
+            }
+        }
+    }
+    if(dir == DOWN){
+        for (int i = fromFloor; i > 0; i++){
+            if(downOrders[i] || insideOrders[i]){
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
-
-
+// should be working
 Direction getDirection(int targetFloor){
     if(!isValidFloor(targetFloor)){
         printf("Error: illeagal argument in getDirection(%d)\n", targetFloor);
@@ -124,6 +99,13 @@ Direction getDirection(int targetFloor){
     }
     return DOWN;
 }
+// should be working
+bool isValidFloor(int floor){
+    if(floor < 0 || floor > HARDWARE_NUMBER_OF_FLOORS){
+        return false;
+    }
+    return true;
+}
 // working
 void findTargetFloor(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -133,6 +115,7 @@ void findTargetFloor(){
         }
     }
 }
+// should be working
 bool atSomeFloor(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         if(onFloor(i)){
@@ -142,6 +125,7 @@ bool atSomeFloor(){
     }
     return false;
 }
+// should be working
 bool orderAt(int floor){
     getOrders();
     return insideOrders[floor] || upOrders[floor] || downOrders[floor];
