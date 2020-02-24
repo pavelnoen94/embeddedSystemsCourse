@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "hardware.h"
 #include "elevator.h"
 #include "modes.h"
