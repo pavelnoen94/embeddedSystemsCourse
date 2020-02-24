@@ -2,7 +2,6 @@
 #include "hardware.h"
 #include "sensor.h"
 
-
 void goToFloorReader(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
 
@@ -26,11 +25,10 @@ void goToFloorReader(){
             continue;
         }
     }
-  
     readStop();
 }
 
-void emergencyReader(){
+void emergencyModeReader(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
 
         // read order buttons
