@@ -11,8 +11,23 @@ void modeSelector(){
 
         if(status == UNKNOWN){
             // find the perfect status
+            if(readStop()){
+                status = STOP;
+                continue;
+            }
+            getOrders();
+            findTargetFloor();
             
-
+            
+            if(checkIfAtTargetFloor()) {
+                status = SERVING;
+                continue;
+            }
+            if (hasOrders) {
+                status = RUNNING;
+                continue;
+            }
+            status = IDLE;
             continue;
         }
         if(status == IDLE){
@@ -24,14 +39,14 @@ void modeSelector(){
 
         if(status == SERVING){
             // loop
-
+            serveFloor();
             status = UNKNOWN;
             continue;
         }
         
         if(status == RUNNING) {
             // loop
-
+            running();
             status = UNKNOWN;
 
             continue;

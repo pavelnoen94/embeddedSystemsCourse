@@ -31,4 +31,4 @@ void resetEmergency();
 void runningModeReader();
 void setTargetFloor(int floor);
 void updateObstruction();
-
+bool checkIfAtTargetFloor();

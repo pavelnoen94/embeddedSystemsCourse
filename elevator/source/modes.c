@@ -43,7 +43,7 @@ void startUp() {
       readFloorSensors();
     }
   }
-
+  
   printf("\ninit complete!\n");
   elevatorStop();
 }
@@ -54,15 +54,17 @@ void idle() {
     getOrders();
     
     if(readStop() || orderAt(lastKnownFloor)){
-      serveFloor();
+      return;
     }
   }
+  
 }
 
 void running() {
 
   while (hasOrders) {
     getOrders();
+    readFloorSensors();
     findTargetFloor();
     //gotoFloor(targetFloor);
 
@@ -93,8 +95,10 @@ void running() {
 
 void serveFloor(){
     if(!atSomeFloor()){
-        return;
+      return;
     }
+    readFloorSensors();
+    clearAllOrdersAtThisFloor();
     elevatorStop();
     openDoor();
 
@@ -160,19 +164,10 @@ void gotoFloor(int floor) {
 }
 
 void emergency() {
-  if (atSomeFloor()) {
-    serveFloor();
-    return;
-  }
-
-  // between floors
-  elevatorStop();
-
   clearAllOrders();
+  elevatorStop();
+  while(readStop()){
 
-  while (!hasOrders) {
-    emergencyModeReader();
   }
-  gotoFloor(getTargetFloor());
   return;
 }

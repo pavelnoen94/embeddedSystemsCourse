@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "hardware.h"
 
-#define DOOR_OPEN_TIME 3
+#define DOOR_OPEN_TIME 1
 
 /**
  * @brief Static boolean array, where index 0-3 represents floor 1-4, and value @c true represents an order in direction @c UP at that floor.
