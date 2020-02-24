@@ -1,24 +1,16 @@
-#include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "modes.h"
-#include "readers.h"
-#include "elevator.h"
+#include "headers/modeSelector.h"
 
 
 
 int main(){
-fprintf(stdout, "%u\n", (unsigned)clock()/CLOCKS_PER_SEC); 
 
-    startUp();
+    modeSelector();
 
 
-    while(1){
-        
-        idle();
-        serving();
 
-  }
+
 
     return 0;
 }

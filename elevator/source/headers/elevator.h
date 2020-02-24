@@ -95,16 +95,7 @@ Direction direction;
  * @endcode
  * 
  */
-void Elevator();
 
-typedef enum{
-    IDLE,
-    SERVING,
-    MOVING,
-    OPENDOOR,
-    STOP
-} Status;
-Status status;
 int targetFloor;
 
 #endif

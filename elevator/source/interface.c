@@ -1,7 +1,11 @@
-#include "elevator.h"
-#include "hardware.h"
-#include "sensor.h"
-#include "routines.h"
+#include <stdbool.h>
+#include "headers/hardware.h"
+#include "headers/elevator.h"
+#include "headers/interface.h"
+
+bool readObstruction(){
+    return hardware_read_obstruction_signal();
+}
 
 void clearAllOrders(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -15,20 +19,13 @@ void clearAllOrders(){
     }
 }
 
-void openDoor(){
-    hardware_command_door_open(true);
-}
-
-void closeDoor(){
-    hardware_command_door_open(false);
-}
-
-void clearAllOrdersAtThisFloor(){
-    if(!atSomeFloor()){
-        return;
+bool activeOrderThisFloor(){
+    if(atSomeFloor()){
+        return upOrders[lastKnownFloor] || downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
     }
-    clearOrders(lastKnownFloor);
+    return -1;
 }
+
 
 void clearOrders(int floor){
     if(!isValidFloor(floor)){
@@ -45,11 +42,44 @@ void clearOrders(int floor){
     hardware_command_order_light(i,HARDWARE_ORDER_INSIDE,0);
 }
 
-bool activeOrderThisFloor(){
-    if(atSomeFloor()){
-        return upOrders[lastKnownFloor] || downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+void clearAllOrdersAtThisFloor(){
+    if(!atSomeFloor()){
+        return;
     }
-    return -1;
+    clearOrders(lastKnownFloor);
+}
+
+// retruns true if stop is pressed
+bool readStop(){
+    hardware_command_stop_light(hardware_read_stop_signal());
+    return hardware_read_stop_signal();
+}
+
+void openDoor(){
+    hardware_command_door_open(true);
+}
+
+void closeDoor(){
+    hardware_command_door_open(false);
+}
+
+// working
+void updateObstruction(){
+    obstruction = readObstruction();
+}
+
+// working
+void readFloorSensors(){
+    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+
+        // read floor sensors. Set correct floor light
+        if(hardware_read_floor_sensor(i)){
+            lastKnownFloor = i;
+            hardware_command_floor_indicator_on(i);
+            return;
+        }
+
+    }
 }
 
 int getLastKnownFloor(){
@@ -66,6 +96,7 @@ void setTargetFloor(int floor){
     }
     targetFloor = floor;
 }
+
 // not tested
 bool ordersInDirection(Direction dir, int fromFloor){
     if(dir == UP){
@@ -99,37 +130,72 @@ Direction getDirection(int targetFloor){
     }
     return DOWN;
 }
-// should be working
-bool isValidFloor(int floor){
-    if(floor < 0 || floor > HARDWARE_NUMBER_OF_FLOORS){
-        return false;
-    }
-    return true;
-}
+
 // working
 void findTargetFloor(){
-    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-        if(upOrders[i] || downOrders[i] || insideOrders[i]){
-            targetFloor = i;
-            return;
+    if(direction == NONE){
+        for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+            if(upOrders[i] || downOrders[i] || insideOrders[i]){
+                targetFloor = i;
+                return;
+            }
         }
     }
-}
-// should be working
-bool atSomeFloor(){
-    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-        if(onFloor(i)){
-            return true;
+    if(direction == UP){
+        for(int i = lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+            if(upOrders[i] || insideOrders[i]){
+                targetFloor = lastKnownFloor + 1;
+                return;
+            }
         }
-        
+        for(int i = HARDWARE_NUMBER_OF_FLOORS - 1; i > 0; i--){
+            if(downOrders[i] || insideOrders[i]){
+                targetFloor = lastKnownFloor - 1;
+                return;
+            }
+        }
     }
-    return false;
+
+    if(direction == DOWN){
+        for(int i = lastKnownFloor; i > 0; i--){
+            if(downOrders[i] || insideOrders[i]){
+                targetFloor = lastKnownFloor - 1;
+                return;
+            }
+        }
+        for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS - 1; i++){
+            if(upOrders[i] || insideOrders[i]){
+                
+                targetFloor = i;
+
+                return;
+            }
+        }
+    }
+
 }
-// should be working
+
+// working
+bool checkEmergency(){
+    emergencyState = emergencyState || readStop();
+    hardware_command_stop_light(emergencyState);
+    return emergencyState;
+}
+
+// wokring
+void resetEmergency(){
+    emergencyState = false;
+    hardware_command_stop_light(false);
+}
+
+
+
+
 bool orderAt(int floor){
     getOrders();
     return insideOrders[floor] || upOrders[floor] || downOrders[floor];
 }
+
 // working
 void elevatorStop(){
     hardware_command_movement(HARDWARE_MOVEMENT_STOP);
@@ -145,41 +211,25 @@ void elevatorMoveDown(){
     hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
 }
 
-// working
-bool onFloor(int floor){
-    return hardware_read_floor_sensor(floor);
-}
-
-// working
-bool checkEmergency(){
-    emergencyState = emergencyState || readStop();
-    hardware_command_stop_light(emergencyState);
-    return emergencyState;
-}
-
-// wokring
-void resetEmergency(){
-    emergencyState = false;
-    hardware_command_stop_light(false);
-}
-// working
-void updateObstruction(){
-    obstruction = readObstruction();
-}
-
-// working
-void readFloorSensors(){
+bool atSomeFloor(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
 
-        // read floor sensors. Set correct floor light
         if(hardware_read_floor_sensor(i)){
-            lastKnownFloor = i;
-            hardware_command_floor_indicator_on(i);
-            return;
+            return true;
         }
 
     }
+    return false;
 }
+
+bool isValidFloor(int floor){
+    if(floor > HARDWARE_NUMBER_OF_FLOORS || floor > 0){
+        return false;
+    }
+    return true;
+}
+
+
 
 // working
 void getOrders(){
@@ -200,3 +250,6 @@ void getOrders(){
         hasOrders = hasOrders || upOrders[i] || downOrders[i] || insideOrders[i];
     }
 }
+
+
+

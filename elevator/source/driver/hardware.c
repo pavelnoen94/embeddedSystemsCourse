@@ -1,4 +1,4 @@
-#include "hardware.h"
+#include "../headers/hardware.h"
 #include "channels.h"
 #include "io.h"
 

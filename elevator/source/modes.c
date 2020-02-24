@@ -1,15 +1,14 @@
-#include "modes.h"
 #include <signal.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include "actions.h"
-#include "elevator.h"
-#include "hardware.h"
-#include "readers.h"
-#include "routines.h"
-#include "sensor.h"
+#include "headers/modes.h"
+#include "headers/elevator.h"
+#include "headers/hardware.h"
+#include "headers/modeReaders.h"
+#include "headers/interface.h"
+#include "headers/modeSelector.h"
 
 static void sigint_handler(int sig) {
   (void)(sig);
@@ -50,7 +49,7 @@ void startUp() {
 }
 
 void idle() {
-  status = IDLE;
+
   while (!hasOrders) {
     getOrders();
     
@@ -60,24 +59,71 @@ void idle() {
   }
 }
 
-void serving() {
-  status = SERVING;
+void running() {
+
   while (hasOrders) {
     getOrders();
     findTargetFloor();
-    gotoFloor(targetFloor);
-    clearAllOrdersAtThisFloor();
-    if(readStop()){
-      emergency();
+    //gotoFloor(targetFloor);
+
+    direction = getDirection(getTargetFloor());
+
+    if (direction == UP) {
+      elevatorMoveUp();
     }
+
+    if (direction == DOWN) {
+      elevatorMoveDown();
+    }
+
+    if (direction == NONE) {
+      return;
+    }
+
+    while(!atSomeFloor()){
+      runningModeReader();
+      if(readStop()){
+        return;
+      }
+
+    }
+    return;
   }
+}
+
+void serveFloor(){
+    if(!atSomeFloor()){
+        return;
+    }
+    elevatorStop();
+    openDoor();
+
+    // start a timer and hold the door open for a time without obstructions
+    time_t startTime = clock() / CLOCKS_PER_SEC;
+    time_t start = startTime;
+    time_t endTime = startTime + DOOR_OPEN_TIME;
+    
+    
+    while (startTime < endTime){
+        getOrders();
+
+        if(readObstruction() || readStop() || orderAt(getLastKnownFloor())){
+            // reset timer
+            endTime = clock() / CLOCKS_PER_SEC + DOOR_OPEN_TIME;
+            clearAllOrdersAtThisFloor();
+        }
+        startTime = clock()/ CLOCKS_PER_SEC;
+    }
+    printf("The door was open for %d seconds\n", (int)(endTime - start));
+    closeDoor();
+    return;
+
 }
 
 void gotoFloor(int floor) {
   if (!isValidFloor(floor)) {
     printf("\nError: invalid argument in gotoFloor(%d)\n", floor);
   }
-  status = MOVING;
 
   setTargetFloor(floor);
   direction = getDirection(getTargetFloor());
@@ -121,13 +167,12 @@ void emergency() {
 
   // between floors
   elevatorStop();
-  status = STOP;
+
   clearAllOrders();
 
   while (!hasOrders) {
     emergencyModeReader();
   }
   gotoFloor(getTargetFloor());
-  status = IDLE;
   return;
 }
