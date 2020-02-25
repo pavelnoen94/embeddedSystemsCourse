@@ -43,7 +43,7 @@ void startUp() {
       readFloorSensors();
     }
   }
-  
+
   printf("\ninit complete!\n");
   elevatorStop();
 }
@@ -52,23 +52,23 @@ void idle() {
 
   while (!hasOrders) {
     getOrders();
-    
+
     if(readStop() || orderAt(lastKnownFloor)){
       return;
     }
   }
-  
+
 }
 
 void running() {
 
   while (hasOrders) {
+    // update sensors and set direction
     getOrders();
     readFloorSensors();
     findTargetFloor();
-    //gotoFloor(targetFloor);
-
     direction = getDirection(getTargetFloor());
+
 
     if (direction == UP) {
       elevatorMoveUp();
@@ -78,17 +78,15 @@ void running() {
       elevatorMoveDown();
     }
 
-    if (direction == NONE) {
-      return;
-    }
-
-    while(!atSomeFloor()){
+    // wait untill a floor with orders is reached
+    while(!activeOrderThisFloor()){
       runningModeReader();
       if(readStop()){
         return;
       }
 
     }
+    elevatorStop();
     return;
   }
 }

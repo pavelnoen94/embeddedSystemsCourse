@@ -8,11 +8,4 @@ typedef enum{
     UNKNOWN
 } Status;
 
-static Status status = UNKNOWN;
-
 void modeSelector();
-void selectorUnknown();
-void selectorIdle();
-void selectorServing();
-void selectorMoving();
-void selectorStop();
