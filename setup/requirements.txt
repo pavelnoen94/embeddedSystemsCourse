@@ -3,3 +3,4 @@ openocd
 doxygen
 texlive-latex-recommended
 valgrind
+inotify-tools

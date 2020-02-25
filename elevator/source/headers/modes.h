@@ -10,7 +10,8 @@
 void startUp();
 void running();
 void idle();
-void openDoor();
+void serveFloor();
+void gotoFloor(int floor);
 void emergency();
 
 #endif

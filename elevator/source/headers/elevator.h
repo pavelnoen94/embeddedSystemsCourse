@@ -12,9 +12,7 @@
 #include <stdlib.h>
 #include "hardware.h"
 
-#define DOOR_OPEN_TIME 3
-
-
+#define DOOR_OPEN_TIME 1
 
 /**
  * @brief Static boolean array, where index 0-3 represents floor 1-4, and value @c true represents an order in direction @c UP at that floor.
@@ -47,11 +45,7 @@ bool hasOrders;
  * 
  */
 bool obstruction;
-/**
- * @brief Boolean variable telling whether the elevator is currently at a known floor. @c false if elevator is between floors.
- * 
- */
-bool atSomeFloor;
+
 /**
  * @brief The previous floor the elevator was known to be at.
  * 
@@ -68,6 +62,18 @@ typedef enum {
     NONE,
     DOWN
 } Direction;
+
+
+
+/**
+ * @brief Structure to remember if the elevator above or below a sertain floor
+ * 
+ */
+typedef struct{
+    int lastKnownFloor;
+    bool above;
+} Position;
+Position position;
 
 /**
  * @brief Global variable; current elevator direction.
@@ -89,5 +95,7 @@ Direction direction;
  * @endcode
  * 
  */
-void Elevator();
+
+int targetFloor;
+
 #endif
