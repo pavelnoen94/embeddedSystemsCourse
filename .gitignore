@@ -61,6 +61,8 @@ docs/*
 
 #binaries to be excluded
 communism
+elevator/elevator
+elevator/build/*
 gdb/programs/*
 makefile/build/*
 
