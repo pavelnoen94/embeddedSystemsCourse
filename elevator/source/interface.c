@@ -20,7 +20,7 @@ void clearAllOrders(){
 }
 
 bool activeOrderThisFloor(){
-    if(!atSomeFloor(){
+    if(!atSomeFloor()){
         return false;
     }
     if(direction == UP){
