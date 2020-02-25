@@ -10,7 +10,7 @@
 #include "headers/interface.h"
 #include "headers/modeSelector.h"
 
-static void sigint_handler(int sig) {
+static void sigHandler(int sig) {
   (void)(sig);
   printf("\nResieved signal %d, Terminating elevator\n", sig);
   hardware_command_movement(HARDWARE_MOVEMENT_STOP);
@@ -31,9 +31,9 @@ void startUp() {
 
   // crash handling
   printf("\nTo terminalte program press ctrl+c or type 'kill -9 %d in terminal'\n", getpid());
-  signal(SIGINT, sigint_handler);
-  signal(SIGTERM, sigint_handler);
-  signal(SIGSEGV, sigint_handler);
+  signal(SIGINT, sigHandler);
+  signal(SIGTERM, sigHandler);
+  signal(SIGSEGV, sigHandler);
 
   // find floor
   readFloorSensors();
