@@ -33,3 +33,4 @@ void setTargetFloor(int floor);
 void updateObstruction();
 bool atTargetFloor();
 bool ordersInCurrentDirection();
+void updateHasOrders();

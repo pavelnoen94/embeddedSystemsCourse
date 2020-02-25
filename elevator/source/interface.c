@@ -319,3 +319,13 @@ bool ordersInCurrentDirection(){
     }
     return false;
 }
+
+void updateHasOrders(){
+    hasOrders = false;
+    for (int i; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
+        if (upOrders[i] || downOrders[i]) {
+            hasOrders = true;
+            return;
+        }
+    }
+}
