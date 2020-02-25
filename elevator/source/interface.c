@@ -20,10 +20,16 @@ void clearAllOrders(){
 }
 
 bool activeOrderThisFloor(){
-    if(atSomeFloor()){
-        return upOrders[lastKnownFloor] || downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+    if(!atSomeFloor(){
+        return false;
     }
-    return -1;
+    if(direction == UP){
+        return upOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+    }
+    if(direction == DOWN){
+        return downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+    }
+    return false;
 }
 
 
@@ -255,13 +261,13 @@ void getOrders(){
         hasOrders = hasOrders || upOrders[i] || downOrders[i] || insideOrders[i];
     }
 }
-bool ordersLeftInCurrentDirection();
-bool checkIfAtTargetFloor() {       // Returns true if elevator is currently at a floor where there is an order (so it should stop)
+
+bool atTargetFloor() {
     if(!atSomeFloor()){
         return false;
     }
     if (direction == UP) {
-        if(ordersLeftInCurrentDirection()){
+        if(ordersInCurrentDirection()){
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
                 if ((upOrders[i] || insideOrders[i]) && onFloor(i)){    
                     return true;
@@ -278,7 +284,7 @@ bool checkIfAtTargetFloor() {       // Returns true if elevator is currently at 
     }
 
     if (direction == DOWN) {
-        if(ordersLeftInCurrentDirection()){
+        if(ordersInCurrentDirection()){
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {
                 if ((downOrders[i] || insideOrders[i]) && onFloor(i)){
                     return true;
@@ -296,8 +302,8 @@ bool checkIfAtTargetFloor() {       // Returns true if elevator is currently at 
     return false;
 }
 
-bool ordersLeftInCurrentDirection(){      // checks if the time is right for a direction change, by testing for
-    if (direction == UP) {          // any unattended orders on floor above/below, based on current durection. Return true if there are none
+bool ordersInCurrentDirection(){
+    if (direction == UP) {
         for (int i = lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
             if (upOrders[i] || insideOrders[i]) { 
                 return true; 
@@ -313,101 +319,3 @@ bool ordersLeftInCurrentDirection(){      // checks if the time is right for a d
     }
     return false;
 }
-
-/*
-
-bool checkIfAtTargetFloor() {       // Returns true if elevator is currently at a floor where there is an order (so it should stop)
-    if (direction == UP) {
-        for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      // Iterates through upOrders while polling floor sensor; 
-            if (upOrders[i] && hardware_read_floor_sensor(i)){      // if both are high, the elevator is currently at a target floor.
-                return true;
-            }
-        }
-    }
-    if (direction == DOWN) {
-        for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {
-            if (downOrders[i] && hardware_read_floor_sensor(i)){
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-// careful not to call this before attending order at current floor. If ie called first when arriving at floor 4, will return false!
-// not yet designed for properly handling direction == NONE
-bool testForDirectionChange(){      // checks if the time is right for a direction change, by testing for
-    if (direction == UP) {          // any unattended orders on floor above/below, based on current durection. Return true if there are none
-        for (int i = lastKnownFloor; i <= HARDWARE_NUMBER_OF_FLOORS; i++) {
-            if (upOrders[i] == true) { return false; }
-        }
-    }
-    if (direction == DOWN) {
-        for (int i = lastKnownFloor; i > 0; i--) {
-            if (downOrders[i] == true) { return false; }
-        }
-    }
-    if (direction == NONE) { return false; }
-    return true;
-}
-
-void checkIfOrders(){
-    hasOrders = false;
-    for (int i; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
-        if (upOrders[i] || downOrders[i]) {
-            hasOrders = true;
-            return;
-        }
-    }
-}
-
-// Should only ever be called if direction = NONE (?)
-// If elevator already has a direction, it must be in the middle of serving an order.
-Direction getAppropriateDirection(){
-    if (!hasOrders) { return NONE; }
-    if (direction != NONE) { return direction; }
-
-    for (int i = lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
-        if (upOrders[i] == true) { return UP; }
-
-    }
-   for (int i = lastKnownFloor; i > 1; i--) {
-        if (downOrders[i] == true) { return DOWN; }
-    }
-}
-
-
-void running() {
-    // Behaviour:
-    // Check if there are any orders;
-    checkIfOrders();                            // readOrders to update order queues
-    // If there are no orders; exit
-    if (!hasOrders) { direction = NONE; return; }
-
-    // If emergency triggers are high; emergency()
-    readStop();
-        if (emergencyState) {
-            emergency();
-            return;             // After exiting emergency mode, return to Elevator(), not middle of running-loop.
-        }
-     If there are any orders;    find location of order relative to elevator to determine direction.
-                                    Start moving in that direction until *a* target floor is reached,
-                                    while checking the emergency state. When reaching a target floor,
-                                    serve that floor. Afterwards, return to Elevator().
-   ///                              
-    if (direction == NONE || testForDirectionChange()) {
-        direction = getAppropriateDirection();
-    }
-    elevatorMove(direction);
-    while (!checkIfAtTargetFloor()) {   // In transit; check only for emergency states
-        readStop();
-        if (emergencyState) {
-            emergency();
-            return;
-        }
-    };
-    openDoor(); // Stops elevator, opens doors, starts timer etc. The whole enchilada.
-    return;
-}
-
-*/
