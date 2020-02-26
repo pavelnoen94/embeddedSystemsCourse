@@ -2,23 +2,22 @@
 #include "headers/hardware.h"
 #include "headers/interface.h"
 
+/*
 void startUpModeReader(){
     checkEmergency();
 }
-
+*/
+/*
 void idleModeReader(){
 
 }
-
-void runningModeReader(){
-
-}
-
+*/
+/*
 void serveFloorModeReader(){
     
 }
-
-
+*/
+/*
 void goToFloorReader(){
     readFloorSensors();
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -32,7 +31,8 @@ void goToFloorReader(){
     }
     readStop();
 }
-
+*/
+/*
 void emergencyModeReader(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
 
@@ -50,8 +50,8 @@ void emergencyModeReader(){
         hasOrders = hasOrders || upOrders[i] || downOrders[i] || insideOrders[i];
     }
 }
-
-
+*/
+/*
 void readFloors(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         // read order buttons
@@ -76,3 +76,4 @@ void readFloors(){
 
     }
 }
+*/

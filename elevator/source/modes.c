@@ -80,7 +80,7 @@ void running() {
 
     // wait untill a floor with orders is reached
     while(!activeOrderThisFloor()){
-      runningModeReader();
+      runningModeReader();          // Wat, this doesnt have any definition?
       if(readStop()){
         return;
       }

@@ -1,6 +1,14 @@
 #pragma once
 #include "elevator.h"
 
+/**
+ * @file 
+ * @brief Library of high level functions pertaining to commanding and inquiring about the elevator.
+ * @details Collection of polling, check and variable-setting functions to be used as
+ * parts of the program loops. Abstracts the interface with @c hardware.h to increase code readability.
+ * 
+ */
+
 bool activeOrderThisFloor();
 bool atSomeFloor();
 bool checkEmergency();
@@ -20,7 +28,7 @@ void doorModeReader();
 void elevatorMoveDown();
 void elevatorMoveUp();
 void elevatorStop();
-void emergencyModeReader();
+//void emergencyModeReader();   // Se modeReaders.h
 void findTargetFloor();
 void getOrders();
 void initModeReader();
@@ -28,9 +36,9 @@ void openDoor();
 void readAllSensors();
 void readFloorSensors();
 void resetEmergency();
-void runningModeReader();
+// void runningModeReader(); // Se modeReaders.h
 void setTargetFloor(int floor);
 void updateObstruction();
+void updateHasOrders();
 bool atTargetFloor();
 bool ordersInCurrentDirection();
-void updateHasOrders();
