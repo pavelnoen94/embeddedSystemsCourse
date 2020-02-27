@@ -134,10 +134,10 @@ Direction getDirection(int targetFloor){
 
     // Løsning av dobbel-stop: (or not, lol)
     if (targetFloor == position.lastKnownFloor && !atSomeFloor()){
-        if (direction == UP) { //Elevator must be above last floor, which is also the target
-            return DOWN;        // EDIT: Pressing STOP and order floor == lastKnown will make elevator go up and down in place)
+        if (position.above == true) { //Elevator must be above last floor, which is also the target
+            return DOWN;        
         }
-        else if (direction == DOWN) {
+        else if (position.above == false) {
             return UP;
         }
         else if (direction == NONE) {

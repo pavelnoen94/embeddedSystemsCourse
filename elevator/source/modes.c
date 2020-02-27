@@ -166,8 +166,6 @@ void gotoFloor(int floor) {
 void emergency() {
   clearAllOrders();
   elevatorStop();
-  // find pos
-
 
   while(readStop()){
 
