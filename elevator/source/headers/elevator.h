@@ -54,8 +54,6 @@ bool obstruction;
  * @brief The previous floor the elevator was known to be at.
  * 
  */
-int lastKnownFloor;
-
 
 /**
  * @brief The different movement directions the elevator can have.

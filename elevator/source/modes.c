@@ -53,7 +53,7 @@ void idle() {
   while (!hasOrders) {
     getOrders();
 
-    if(readStop() || orderAt(lastKnownFloor)){
+    if(readStop() || orderAt(position.lastKnownFloor)){
       return;
     }
   }
@@ -79,7 +79,8 @@ void running() {
     }
 
     // wait untill a floor with orders is reached
-    while(!activeOrderThisFloor()){
+    while(!atTargetFloor()){
+    // while(!activeOrderThisFloor()){
       getOrders();
       readFloorSensors();
       if(readStop()){
@@ -148,14 +149,14 @@ void gotoFloor(int floor) {
     readFloorSensors();
     getOrders();
 
-    if (lastKnownFloor == getTargetFloor()) {
+    if (position.lastKnownFloor == getTargetFloor()) {
       targetReached = true;
       clearAllOrdersAtThisFloor();
       serveFloor();
     }
 
     if (atSomeFloor()) {
-      if (direction == UP && (upOrders[lastKnownFloor] || insideOrders[lastKnownFloor])) {
+      if (direction == UP && (upOrders[position.lastKnownFloor] || insideOrders[position.lastKnownFloor])) {
       }
     }
   }
@@ -165,6 +166,9 @@ void gotoFloor(int floor) {
 void emergency() {
   clearAllOrders();
   elevatorStop();
+  // find pos
+
+
   while(readStop()){
 
   }

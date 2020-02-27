@@ -24,10 +24,10 @@ bool activeOrderThisFloor(){
         return false;
     }
     if(direction == UP){
-        return upOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+        return upOrders[position.lastKnownFloor] || insideOrders[position.lastKnownFloor];
     }
     if(direction == DOWN){
-        return downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+        return downOrders[position.lastKnownFloor] || insideOrders[position.lastKnownFloor];
     }
     return false;
 }
@@ -52,7 +52,7 @@ void clearAllOrdersAtThisFloor(){
     if(!atSomeFloor()){
         return;
     }
-    clearOrders(lastKnownFloor);
+    clearOrders(position.lastKnownFloor);
 }
 
 // retruns true if stop is pressed
@@ -80,7 +80,7 @@ void readFloorSensors(){
 
         // read floor sensors. Set correct floor light
         if(hardware_read_floor_sensor(i)){
-            lastKnownFloor = i;
+            position.lastKnownFloor = i;
             hardware_command_floor_indicator_on(i);
             return;
         }
@@ -89,7 +89,7 @@ void readFloorSensors(){
 }
 
 int getLastKnownFloor(){
-    return lastKnownFloor;
+    return position.lastKnownFloor;
 }
 
 int getTargetFloor(){
@@ -127,11 +127,11 @@ Direction getDirection(int targetFloor){
     if(!isValidFloor(targetFloor)){
         printf("Error: illeagal argument in getDirection(%d)\n", targetFloor);
     }
-    if(targetFloor == lastKnownFloor){
+    if(targetFloor == position.lastKnownFloor){
         return NONE;
     }
 
-    if(targetFloor > lastKnownFloor){
+    if(targetFloor > position.lastKnownFloor){
         return UP;
     }
     return DOWN;
@@ -149,7 +149,7 @@ void findTargetFloor(){
     }
 
     if(direction == UP){
-        for(int i = lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+        for(int i = position.lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(upOrders[i] || insideOrders[i]){
                 targetFloor = i;
                 return;
@@ -164,7 +164,7 @@ void findTargetFloor(){
     }
 
     if(direction == DOWN){
-        for(int i = lastKnownFloor; i > 0; i--){
+        for(int i = position.lastKnownFloor; i > 0; i--){
             if(downOrders[i] || insideOrders[i]){
                 targetFloor = i;
                 return;
@@ -172,9 +172,7 @@ void findTargetFloor(){
         }
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS - 1; i++){
             if(upOrders[i] || insideOrders[i]){
-                
                 targetFloor = i;
-
                 return;
             }
         }
@@ -266,6 +264,11 @@ bool atTargetFloor() {
     if(!atSomeFloor()){
         return false;
     }
+    if(direction == NONE){
+        return position.lastKnownFloor == targetFloor ? true : false;
+    }
+
+
     if (direction == UP) {
         if(ordersInCurrentDirection()){
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
@@ -304,14 +307,14 @@ bool atTargetFloor() {
 
 bool ordersInCurrentDirection(){
     if (direction == UP) {
-        for (int i = lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
+        for (int i = position.lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
             if (upOrders[i] || insideOrders[i]) { 
                 return true; 
             }
         }
     }
     if (direction == DOWN) {
-        for (int i = lastKnownFloor; i > 0; i--) {
+        for (int i = position.lastKnownFloor; i > 0; i--) {
             if (downOrders[i] || insideOrders[i]) { 
                 return true; 
             }

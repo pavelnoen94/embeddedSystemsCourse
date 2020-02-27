@@ -20,7 +20,7 @@ void modeSelector(){
             findTargetFloor();
 
 
-            if(atTargetFloor()) {
+            if(hasOrders && atTargetFloor()) {
                 status = SERVING;
                 continue;
             }
