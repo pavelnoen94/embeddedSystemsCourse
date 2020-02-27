@@ -2,6 +2,7 @@
 #include "headers/hardware.h"
 #include "headers/elevator.h"
 #include "headers/interface.h"
+#include "headers/modes.h"
 
 bool readObstruction(){
     return hardware_read_obstruction_signal();
@@ -127,8 +128,22 @@ Direction getDirection(int targetFloor){
     if(!isValidFloor(targetFloor)){
         printf("Error: illeagal argument in getDirection(%d)\n", targetFloor);
     }
-    if(targetFloor == position.lastKnownFloor){
-        return NONE;
+    if(targetFloor == position.lastKnownFloor && atSomeFloor()){        // Kjernen i dobbel-stop-problemet; targetFloor = lastKnownFloor mens heisen er mellom etasjer -> direction settes til NONE
+        return NONE;                                                    // La til cond. && atSomeFloor
+    }
+
+    // Løsning av dobbel-stop: (or not, lol)
+    if (targetFloor == position.lastKnownFloor && !atSomeFloor()){
+        if (direction == UP) { //Elevator must be above last floor, which is also the target
+            return DOWN;        // EDIT: Pressing STOP and order floor == lastKnown will make elevator go up and down in place)
+        }
+        else if (direction == DOWN) {
+            return UP;
+        }
+        else if (direction == NONE) {
+            startUp();
+            return NONE;
+        }
     }
 
     if(targetFloor > position.lastKnownFloor){
@@ -265,7 +280,7 @@ bool atTargetFloor() {
         return false;
     }
     if(direction == NONE){
-        return position.lastKnownFloor == targetFloor ? true : false;
+        return position.lastKnownFloor == targetFloor ? true : false;    // If lastKnownFloor == targetFloor, return true
     }
 
 
@@ -278,9 +293,17 @@ bool atTargetFloor() {
             }  
         }
         else{
-            for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
-                if ((downOrders[i] || insideOrders[i]) && onFloor(i)){
-                    return true;
+            for (int i = HARDWARE_NUMBER_OF_FLOORS - 1; i >= 0; i --) {      // If direction is up and there are no upOrders, iterate through downOrders starting from floor <highest>
+                
+                if ((downOrders[i] || insideOrders[i])){
+                    targetFloor = i;                           // Written like this for readability; Target floor becomes the top-most floor in "wrong-queue" - only at that one shall the elevator stop
+                    if (onFloor(targetFloor)) {         
+                        return true;
+                    }
+                    else                                       
+                    {
+                        return false;
+                    }
                 }
             }
         }
@@ -296,8 +319,15 @@ bool atTargetFloor() {
         }
         else{
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
-                if ((upOrders[i] || insideOrders[i]) && onFloor(i)){
-                    return true;
+                if ((upOrders[i] || insideOrders[i])) {
+                    targetFloor = i;
+                    if (onFloor(targetFloor)) {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
         }
@@ -331,4 +361,28 @@ void updateHasOrders(){
             return;
         }
     }
+}
+
+void updatePosition(){      // Updates last known floor, and whether elevator is above it.
+    int oldTargetFloor = targetFloor;
+    int oldLastKnownFloor = position.lastKnownFloor;
+    readFloorSensors();     // Read floor sensors and update position.lastKnownFloor
+    
+    if ((oldLastKnownFloor == position.lastKnownFloor) && atSomeFloor()) {     // Only if lasy known floor has changed, should "above" be changed.
+        if (direction == UP) {  // Elevator is going up, and is passing last known floor again
+            position.above = true;
+        }
+        else if (direction == DOWN) {
+            position.above = false;
+        }
+    }
+    else if(oldLastKnownFloor != position.lastKnownFloor) {     // Elevator must have passed a new floor
+        if (direction == UP) {      // Going up - must be above last passed floor
+            position.above = true;
+        }
+        else if (direction == DOWN) {   // Going down - must be below last known floor
+            position.above = false;
+        }
+    }
+    
 }

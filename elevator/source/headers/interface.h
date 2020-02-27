@@ -33,7 +33,7 @@ void findTargetFloor();
 void getOrders();
 void initModeReader();
 void openDoor();
-void readAllSensors();
+// void readAllSensors();       // Not used anywhere
 void readFloorSensors();
 void resetEmergency();
 // void runningModeReader(); // Se modeReaders.h
@@ -42,3 +42,4 @@ void updateObstruction();
 void updateHasOrders();
 bool atTargetFloor();
 bool ordersInCurrentDirection();
+void updatePosition();

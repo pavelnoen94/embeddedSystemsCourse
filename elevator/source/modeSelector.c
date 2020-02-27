@@ -6,7 +6,7 @@
 void modeSelector(){
 
     startUp();
-    static Status status = IDLE;
+    static Status status = IDLE;   
     direction = NONE;
     while(1){
 

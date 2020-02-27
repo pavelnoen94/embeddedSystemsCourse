@@ -36,11 +36,11 @@ void startUp() {
   signal(SIGSEGV, sigHandler);
 
   // find floor
-  readFloorSensors();
+  updatePosition();
   if (!atSomeFloor()) {
     elevatorMoveUp();
     while (!atSomeFloor()) {
-      readFloorSensors();
+      updatePosition();
     }
   }
 
@@ -65,7 +65,7 @@ void running() {
   while (hasOrders) {
     // update sensors and set direction
     getOrders();
-    readFloorSensors();
+    updatePosition();
     findTargetFloor();
     direction = getDirection(getTargetFloor());
 
@@ -82,7 +82,7 @@ void running() {
     while(!atTargetFloor()){
     // while(!activeOrderThisFloor()){
       getOrders();
-      readFloorSensors();
+      updatePosition();
       if(readStop()){
         return;
       }
@@ -97,7 +97,7 @@ void serveFloor(){
     if(!atSomeFloor()){
       return;
     }
-    readFloorSensors();
+    updatePosition();
     clearAllOrdersAtThisFloor();
     elevatorStop();
     openDoor();
