@@ -73,23 +73,28 @@ void running() {
 
 	while (hasOrders) {
 		// update sensors and set direction
+		
 		getOrders();
 		updatePosition();
-		findTargetFloor();
 		direction = getDirection(getTargetFloor());
-
-
-		if (direction == UP) {
-			elevatorMoveUp();
-		}
-
-		if (direction == DOWN) {
-			elevatorMoveDown();
-		}
-
+		
 		// wait untill a floor with orders is reached
 		while(!atTargetFloor()){
+			findTargetFloor();
+			if(((targetFloor > position.lastKnownFloor) && direction == DOWN ) || ((targetFloor < position.lastKnownFloor) && (direction == UP))){
+				printf("[Warning]: Elevator is moving in oposite direction of order.\n");
+				break;
+			}
 
+			if (direction == UP) {
+				elevatorMoveUp();
+			}
+
+			if (direction == DOWN) {
+				elevatorMoveDown();
+			}
+
+			
 			getOrders();
 			updatePosition();
 			
@@ -127,7 +132,6 @@ void serveFloor(){
 				clearAllOrders();
 			}
 			// reset timer
-			emergencyState = false;
 			endTime = clock() / CLOCKS_PER_SEC + DOOR_OPEN_TIME;
 			clearAllOrdersAtThisFloor();
         }
@@ -139,46 +143,8 @@ void serveFloor(){
 
 }
 
-void gotoFloor(int floor) {
-  if (!isValidFloor(floor)) {
-    printf("\nError: invalid argument in gotoFloor(%d)\n", floor);
-  }
-
-  setTargetFloor(floor);
-  direction = getDirection(getTargetFloor());
-
-  if (direction == UP) {
-    elevatorMoveUp();
-  }
-
-  if (direction == DOWN) {
-    elevatorMoveDown();
-  }
-
-  if (direction == NONE) {
-    serveFloor();
-  }
-
-  bool targetReached = false;
-  while (!targetReached) {
-    readFloorSensors();
-    getOrders();
-
-    if (position.lastKnownFloor == getTargetFloor()) {
-      targetReached = true;
-      clearAllOrdersAtThisFloor();
-      serveFloor();
-    }
-
-    if (atSomeFloor()) {
-      if (direction == UP && (upOrders[position.lastKnownFloor] || insideOrders[position.lastKnownFloor])) {
-      }
-    }
-  }
-  elevatorStop();
-}
-
 void emergency() {
+	emergencyState = true;
   clearAllOrders();
   elevatorStop();
 

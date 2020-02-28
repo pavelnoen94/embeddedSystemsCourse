@@ -58,7 +58,6 @@ void clearAllOrdersAtThisFloor(){
 
 // retruns true if stop is pressed
 bool readStop(){
-    emergencyState = emergencyState || hardware_read_stop_signal();
     hardware_command_stop_light(hardware_read_stop_signal());
     return hardware_read_stop_signal();
 }
@@ -124,38 +123,39 @@ bool ordersInDirection(Direction dir, int fromFloor){
     return false;
 }
 
-// should be working
 Direction getDirection(int targetFloor){
+
     if(!isValidFloor(targetFloor)){
-        printf("Error: illeagal argument in getDirection(%d)\n", targetFloor);
+        printf("[Error]: floor %d does not exist \nin getDirection(int)\n", targetFloor);
     }
+
     if(targetFloor == position.lastKnownFloor && atSomeFloor()){
         return NONE;
     }
- 
-    if (!atSomeFloor()){
+
+    // elevator stopped. if new floor is in oposite direction flip the direction and change the last known floor.
+    if(emergencyState && !atSomeFloor()){
+        emergencyState = false;
+
+        // elevator ordered back.
         if(targetFloor == position.lastKnownFloor){
             if(direction == UP){
                 position.lastKnownFloor++;
                 return DOWN;
-
             }
+
             position.lastKnownFloor--;
             return UP;
         }
+
+        if(targetFloor > position.lastKnownFloor){
+            return UP;
+        }
+
+        return DOWN;
         
-        bool targetAbove;
-
-        if(position.lastKnownFloor > targetFloor){
-            targetAbove = false;
-        }
-
-        if(position.lastKnownFloor < targetFloor){
-            targetAbove = true;
-        }
-        return (targetAbove == true ? UP : DOWN);
-
     }
+    emergencyState = false;
 
     if(targetFloor > position.lastKnownFloor){
         return UP;
@@ -165,15 +165,7 @@ Direction getDirection(int targetFloor){
 
 // working
 void findTargetFloor(){
-    if(emergencyState){
-        for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-            if(upOrders[i] || downOrders[i] || insideOrders[i]){
-                targetFloor = i;
-                return;
-            }
-        }
-    }
-    if(direction == NONE){
+    if(direction == NONE || emergencyState){
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(upOrders[i] || downOrders[i] || insideOrders[i]){
                 targetFloor = i;
@@ -213,22 +205,6 @@ void findTargetFloor(){
     }
 
 }
-
-// working
-bool checkEmergency(){
-    emergencyState = emergencyState || readStop();
-    hardware_command_stop_light(emergencyState);
-    return emergencyState;
-}
-
-// working
-void resetEmergency(){
-    emergencyState = false;
-    hardware_command_stop_light(false);
-}
-
-
-
 
 bool orderAt(int floor){
     getOrders();

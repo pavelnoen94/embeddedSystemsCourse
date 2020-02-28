@@ -43,11 +43,6 @@ void serveFloor();
  * @brief 
  * 
  */
-void gotoFloor(int floor);
-/**
- * @brief 
- * 
- */
 void emergency();
 
 #endif
