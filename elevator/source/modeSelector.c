@@ -12,6 +12,11 @@ void modeSelector(){
 
         if(status == UNKNOWN){
             // find the perfect status
+            if(readStop() && atSomeFloor()){
+                clearAllOrders();
+                status = SERVING;
+                continue;
+            }
             if(readStop()){
                 status = STOP;
                 continue;

@@ -112,9 +112,12 @@ void serveFloor(){
         getOrders();
 
         if(readObstruction() || readStop() || orderAt(getLastKnownFloor())){
-            // reset timer
-            endTime = clock() / CLOCKS_PER_SEC + DOOR_OPEN_TIME;
-            clearAllOrdersAtThisFloor();
+          if(readStop()){
+            clearAllOrders();
+          }
+          // reset timer
+          endTime = clock() / CLOCKS_PER_SEC + DOOR_OPEN_TIME;
+          clearAllOrdersAtThisFloor();
         }
         startTime = clock()/ CLOCKS_PER_SEC;
     }
