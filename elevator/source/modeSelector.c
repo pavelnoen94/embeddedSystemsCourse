@@ -20,7 +20,6 @@ void modeSelector(){
                 status = SERVING;
                 continue;
             }
-
             if(readStop()){
                 status = STOP;
                 continue;
