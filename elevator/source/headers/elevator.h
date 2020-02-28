@@ -44,11 +44,6 @@ bool emergencyState;
  * 
  */
 bool hasOrders;
-/**
- * @brief Boolean variable telling whether obstruction input is high or not.
- * 
- */
-bool obstruction;
 
 /**
  * @brief The previous floor the elevator was known to be at.
@@ -74,7 +69,6 @@ typedef enum {
  */
 typedef struct{
     int lastKnownFloor;
-    bool above;
 } Position;
 Position position;
 

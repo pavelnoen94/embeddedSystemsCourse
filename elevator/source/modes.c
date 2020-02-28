@@ -45,11 +45,11 @@ void startUp() {
 	signal(SIGSEGV, sigHandler);
 
 	// find floor
-	updatePosition();
+	readFloorSensors();
 	if (!atSomeFloor()) {
 		elevatorMoveUp();
 		while (!atSomeFloor()) {
-			updatePosition();
+			readFloorSensors();
 		}
 	}
 
@@ -75,8 +75,8 @@ void running() {
 		// update sensors and set direction
 		
 		getOrders();
-		updatePosition();
-		direction = getDirection(getTargetFloor());
+		readFloorSensors();
+		direction = getDirection(targetFloor);
 		
 		// wait untill a floor with orders is reached
 		while(!atTargetFloor()){
@@ -96,7 +96,7 @@ void running() {
 
 			
 			getOrders();
-			updatePosition();
+			readFloorSensors();
 			
 			if(readStop()){
 				return;
@@ -113,7 +113,7 @@ void serveFloor(){
     if(!atSomeFloor()){
       return;
     }
-    updatePosition();
+    readFloorSensors();
     clearAllOrdersAtThisFloor();
     elevatorStop();
     openDoor();
@@ -127,7 +127,7 @@ void serveFloor(){
     while (startTime < endTime){
         getOrders();
 
-        if(readObstruction() || readStop() || orderAt(getLastKnownFloor())){
+        if(readObstruction() || readStop() || orderAt(position.lastKnownFloor)){
 			if(readStop()){
 				clearAllOrders();
 			}
