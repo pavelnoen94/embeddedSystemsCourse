@@ -11,86 +11,97 @@
 #include "headers/modeSelector.h"
 
 static void sigHandler(int sig) {
-  (void)(sig);
-  printf("\nResieved signal %d, Terminating elevator\n", sig);
-  hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-  exit(0);
+
+	switch(sig){
+		case SIGSEGV:
+			printf("[Warning]: Recieved Segmentation fault.\n");
+			return;
+		case SIGINT:
+
+		default:
+			printf("Resieved signal %d, Terminating elevator\n", sig);
+			hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+			exit(0);
+	}
+
 }
-
 void startUp() {
-  // connect to hardware
-  int error = hardware_init();
-  if (error != 0) {
-    fprintf(stderr, "Unable to initialize hardware\n");
-    exit(1);
-  }
+	printf("\n");
+	// connect to hardware
+	int error = hardware_init();
+	if (error != 0) {
+		fprintf(stderr, "Unable to initialize hardware\n");
+		exit(1);
+	}
 
-  elevatorStop();
-  clearAllOrders();
-  closeDoor();
+  	elevatorStop();
+  	clearAllOrders();
+  	closeDoor();
 
-  // crash handling
-  printf("\nTo terminalte program press ctrl+c or type 'kill -9 %d in terminal'\n", getpid());
-  signal(SIGINT, sigHandler);
-  signal(SIGTERM, sigHandler);
-  signal(SIGSEGV, sigHandler);
+	// crash handling
+	printf("To terminalte program press ctrl+c or type 'kill -9 %d in terminal'\n", getpid());
+	signal(SIGTERM, sigHandler);
+	signal(SIGKILL, sigHandler);
+	signal(SIGSEGV, sigHandler);
 
-  // find floor
-  updatePosition();
-  if (!atSomeFloor()) {
-    elevatorMoveUp();
-    while (!atSomeFloor()) {
-      updatePosition();
-    }
-  }
+	// find floor
+	updatePosition();
+	if (!atSomeFloor()) {
+	elevatorMoveUp();
+	while (!atSomeFloor()) {
+		updatePosition();
+	}
+	}
 
-  printf("\ninit complete!\n");
-  elevatorStop();
+	printf("\ninit complete!\n");
+	elevatorStop();
 }
 
 void idle() {
 
-  while (!hasOrders) {
-    getOrders();
+	while (!hasOrders) {
+		getOrders();
 
-    if(readStop() || orderAt(position.lastKnownFloor)){
-      return;
-    }
-  }
+		if(readStop() || orderAt(position.lastKnownFloor)){
+			return;
+		}
+	}
 
 }
 
 void running() {
 
-  while (hasOrders) {
-    // update sensors and set direction
-    getOrders();
-    updatePosition();
-    findTargetFloor();
-    direction = getDirection(getTargetFloor());
+	while (hasOrders) {
+		// update sensors and set direction
+		getOrders();
+		updatePosition();
+		findTargetFloor();
+		direction = getDirection(getTargetFloor());
 
 
-    if (direction == UP) {
-      elevatorMoveUp();
-    }
+		if (direction == UP) {
+			elevatorMoveUp();
+		}
 
-    if (direction == DOWN) {
-      elevatorMoveDown();
-    }
+		if (direction == DOWN) {
+			elevatorMoveDown();
+		}
 
-    // wait untill a floor with orders is reached
-    while(!atTargetFloor()){
-    // while(!activeOrderThisFloor()){
-      getOrders();
-      updatePosition();
-      if(readStop()){
-        return;
-      }
+		// wait untill a floor with orders is reached
+		while(!atTargetFloor()){
 
-    }
-    elevatorStop();
-    return;
-  }
+			getOrders();
+			updatePosition();
+			
+			if(readStop()){
+				return;
+			}
+
+		}
+
+		elevatorStop();
+		return;
+	}
 }
 
 void serveFloor(){
