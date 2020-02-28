@@ -16,7 +16,7 @@
  * @brief Time [s] elevator door is held open when openDoors() is called.
  * 
  */
-#define DOOR_OPEN_TIME 1
+#define DOOR_OPEN_TIME 3
 
 /**
  * @brief Static boolean array, where index 0-3 represents floor 1-4, and value @c true represents an order in direction @c UP at that floor.
