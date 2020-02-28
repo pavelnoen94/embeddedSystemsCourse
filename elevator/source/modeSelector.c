@@ -6,31 +6,39 @@
 void modeSelector(){
 
     startUp();
-    static Status status = IDLE;
+    static Status status = IDLE;   
     direction = NONE;
     while(1){
 
         if(status == UNKNOWN){
-            // find the perfect status
+
+            getOrders();
+            findTargetFloor();
+
+            if(readStop() && atSomeFloor()){
+                clearAllOrders();
+                status = SERVING;
+                continue;
+            }
             if(readStop()){
                 status = STOP;
                 continue;
             }
-            getOrders();
-            findTargetFloor();
 
-
-            if(atTargetFloor()) {
+            if(hasOrders && atTargetFloor()) {
                 status = SERVING;
                 continue;
+
             }
             if (hasOrders) {
                 status = RUNNING;
                 continue;
+
             }
             status = IDLE;
             continue;
         }
+
         if(status == IDLE){
 
             idle();

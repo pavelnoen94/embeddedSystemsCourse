@@ -2,6 +2,7 @@
 #include "headers/hardware.h"
 #include "headers/elevator.h"
 #include "headers/interface.h"
+#include "headers/modes.h"
 
 bool readObstruction(){
     return hardware_read_obstruction_signal();
@@ -24,10 +25,10 @@ bool activeOrderThisFloor(){
         return false;
     }
     if(direction == UP){
-        return upOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+        return upOrders[position.lastKnownFloor] || insideOrders[position.lastKnownFloor];
     }
     if(direction == DOWN){
-        return downOrders[lastKnownFloor] || insideOrders[lastKnownFloor];
+        return downOrders[position.lastKnownFloor] || insideOrders[position.lastKnownFloor];
     }
     return false;
 }
@@ -52,7 +53,7 @@ void clearAllOrdersAtThisFloor(){
     if(!atSomeFloor()){
         return;
     }
-    clearOrders(lastKnownFloor);
+    clearOrders(position.lastKnownFloor);
 }
 
 // retruns true if stop is pressed
@@ -80,7 +81,7 @@ void readFloorSensors(){
 
         // read floor sensors. Set correct floor light
         if(hardware_read_floor_sensor(i)){
-            lastKnownFloor = i;
+            position.lastKnownFloor = i;
             hardware_command_floor_indicator_on(i);
             return;
         }
@@ -89,7 +90,7 @@ void readFloorSensors(){
 }
 
 int getLastKnownFloor(){
-    return lastKnownFloor;
+    return position.lastKnownFloor;
 }
 
 int getTargetFloor(){
@@ -122,16 +123,41 @@ bool ordersInDirection(Direction dir, int fromFloor){
     return false;
 }
 
-// should be working
 Direction getDirection(int targetFloor){
+
     if(!isValidFloor(targetFloor)){
-        printf("Error: illeagal argument in getDirection(%d)\n", targetFloor);
+        printf("[Error]: floor %d does not exist \nin getDirection(int)\n", targetFloor);
     }
-    if(targetFloor == lastKnownFloor){
+
+    if(targetFloor == position.lastKnownFloor && atSomeFloor()){
         return NONE;
     }
 
-    if(targetFloor > lastKnownFloor){
+    // elevator stopped. if new floor is in oposite direction flip the direction and change the last known floor.
+    if(emergencyState && !atSomeFloor()){
+        emergencyState = false;
+
+        // elevator ordered back.
+        if(targetFloor == position.lastKnownFloor){
+            if(direction == UP){
+                position.lastKnownFloor++;
+                return DOWN;
+            }
+
+            position.lastKnownFloor--;
+            return UP;
+        }
+
+        if(targetFloor > position.lastKnownFloor){
+            return UP;
+        }
+
+        return DOWN;
+        
+    }
+    emergencyState = false;
+
+    if(targetFloor > position.lastKnownFloor){
         return UP;
     }
     return DOWN;
@@ -139,7 +165,7 @@ Direction getDirection(int targetFloor){
 
 // working
 void findTargetFloor(){
-    if(direction == NONE){
+    if(direction == NONE || emergencyState){
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(upOrders[i] || downOrders[i] || insideOrders[i]){
                 targetFloor = i;
@@ -149,7 +175,7 @@ void findTargetFloor(){
     }
 
     if(direction == UP){
-        for(int i = lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+        for(int i = position.lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(upOrders[i] || insideOrders[i]){
                 targetFloor = i;
                 return;
@@ -164,7 +190,7 @@ void findTargetFloor(){
     }
 
     if(direction == DOWN){
-        for(int i = lastKnownFloor; i > 0; i--){
+        for(int i = position.lastKnownFloor; i > 0; i--){
             if(downOrders[i] || insideOrders[i]){
                 targetFloor = i;
                 return;
@@ -172,31 +198,13 @@ void findTargetFloor(){
         }
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS - 1; i++){
             if(upOrders[i] || insideOrders[i]){
-                
                 targetFloor = i;
-
                 return;
             }
         }
     }
 
 }
-
-// working
-bool checkEmergency(){
-    emergencyState = emergencyState || readStop();
-    hardware_command_stop_light(emergencyState);
-    return emergencyState;
-}
-
-// working
-void resetEmergency(){
-    emergencyState = false;
-    hardware_command_stop_light(false);
-}
-
-
-
 
 bool orderAt(int floor){
     getOrders();
@@ -266,6 +274,11 @@ bool atTargetFloor() {
     if(!atSomeFloor()){
         return false;
     }
+    if(direction == NONE){
+        return position.lastKnownFloor == targetFloor ? true : false;    // If lastKnownFloor == targetFloor, return true
+    }
+
+
     if (direction == UP) {
         if(ordersInCurrentDirection()){
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
@@ -275,9 +288,17 @@ bool atTargetFloor() {
             }  
         }
         else{
-            for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
-                if ((downOrders[i] || insideOrders[i]) && onFloor(i)){
-                    return true;
+            for (int i = HARDWARE_NUMBER_OF_FLOORS - 1; i >= 0; i --) {      // If direction is up and there are no upOrders, iterate through downOrders starting from floor <highest>
+                
+                if ((downOrders[i] || insideOrders[i])){
+                    targetFloor = i;                           // Written like this for readability; Target floor becomes the top-most floor in "wrong-queue" - only at that one shall the elevator stop
+                    if (onFloor(targetFloor)) {         
+                        return true;
+                    }
+                    else                                       
+                    {
+                        return false;
+                    }
                 }
             }
         }
@@ -293,8 +314,15 @@ bool atTargetFloor() {
         }
         else{
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
-                if ((upOrders[i] || insideOrders[i]) && onFloor(i)){
-                    return true;
+                if ((upOrders[i] || insideOrders[i])) {
+                    targetFloor = i;
+                    if (onFloor(targetFloor)) {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
         }
@@ -304,18 +332,52 @@ bool atTargetFloor() {
 
 bool ordersInCurrentDirection(){
     if (direction == UP) {
-        for (int i = lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
+        for (int i = position.lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
             if (upOrders[i] || insideOrders[i]) { 
                 return true; 
             }
         }
     }
     if (direction == DOWN) {
-        for (int i = lastKnownFloor; i > 0; i--) {
+        for (int i = position.lastKnownFloor; i > 0; i--) {
             if (downOrders[i] || insideOrders[i]) { 
                 return true; 
             }
         }
     }
     return false;
+}
+
+void updateHasOrders(){
+    hasOrders = false;
+    for (int i; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
+        if (upOrders[i] || downOrders[i]) {
+            hasOrders = true;
+            return;
+        }
+    }
+}
+
+void updatePosition(){      // Updates last known floor, and whether elevator is above it.
+    int oldTargetFloor = targetFloor;
+    int oldLastKnownFloor = position.lastKnownFloor;
+    readFloorSensors();     // Read floor sensors and update position.lastKnownFloor
+    
+    if ((oldLastKnownFloor == position.lastKnownFloor) && atSomeFloor()) {     // Only if lasy known floor has changed, should "above" be changed.
+        if (direction == UP) {  // Elevator is going up, and is passing last known floor again
+            position.above = true;
+        }
+        else if (direction == DOWN) {
+            position.above = false;
+        }
+    }
+    else if(oldLastKnownFloor != position.lastKnownFloor) {     // Elevator must have passed a new floor
+        if (direction == UP) {      // Going up - must be above last passed floor
+            position.above = true;
+        }
+        else if (direction == DOWN) {   // Going down - must be below last known floor
+            position.above = false;
+        }
+    }
+    
 }
