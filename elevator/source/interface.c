@@ -58,6 +58,7 @@ void clearAllOrdersAtThisFloor(){
 
 // retruns true if stop is pressed
 bool readStop(){
+    emergencyState = emergencyState || hardware_read_stop_signal();
     hardware_command_stop_light(hardware_read_stop_signal());
     return hardware_read_stop_signal();
 }
@@ -128,22 +129,32 @@ Direction getDirection(int targetFloor){
     if(!isValidFloor(targetFloor)){
         printf("Error: illeagal argument in getDirection(%d)\n", targetFloor);
     }
-    if(targetFloor == position.lastKnownFloor && atSomeFloor()){        // Kjernen i dobbel-stop-problemet; targetFloor = lastKnownFloor mens heisen er mellom etasjer -> direction settes til NONE
-        return NONE;                                                    // La til cond. && atSomeFloor
+    if(targetFloor == position.lastKnownFloor && atSomeFloor()){
+        return NONE;
     }
+ 
+    if (!atSomeFloor()){
+        if(targetFloor == position.lastKnownFloor){
+            if(direction == UP){
+                position.lastKnownFloor++;
+                return DOWN;
 
-    // Løsning av dobbel-stop: (or not, lol)
-    if (targetFloor == position.lastKnownFloor && !atSomeFloor()){
-        if (position.above == true) { //Elevator must be above last floor, which is also the target
-            return DOWN;        
-        }
-        else if (position.above == false) {
+            }
+            position.lastKnownFloor--;
             return UP;
         }
-        else if (direction == NONE) {
-            startUp();
-            return NONE;
+        
+        bool targetAbove;
+
+        if(position.lastKnownFloor > targetFloor){
+            targetAbove = false;
         }
+
+        if(position.lastKnownFloor < targetFloor){
+            targetAbove = true;
+        }
+        return (targetAbove == true ? UP : DOWN);
+
     }
 
     if(targetFloor > position.lastKnownFloor){
@@ -154,6 +165,14 @@ Direction getDirection(int targetFloor){
 
 // working
 void findTargetFloor(){
+    if(emergencyState){
+        for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+            if(upOrders[i] || downOrders[i] || insideOrders[i]){
+                targetFloor = i;
+                return;
+            }
+        }
+    }
     if(direction == NONE){
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(upOrders[i] || downOrders[i] || insideOrders[i]){

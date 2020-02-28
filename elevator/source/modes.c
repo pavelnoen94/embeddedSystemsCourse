@@ -47,10 +47,10 @@ void startUp() {
 	// find floor
 	updatePosition();
 	if (!atSomeFloor()) {
-	elevatorMoveUp();
-	while (!atSomeFloor()) {
-		updatePosition();
-	}
+		elevatorMoveUp();
+		while (!atSomeFloor()) {
+			updatePosition();
+		}
 	}
 
 	printf("\ninit complete!\n");
@@ -123,12 +123,13 @@ void serveFloor(){
         getOrders();
 
         if(readObstruction() || readStop() || orderAt(getLastKnownFloor())){
-          if(readStop()){
-            clearAllOrders();
-          }
-          // reset timer
-          endTime = clock() / CLOCKS_PER_SEC + DOOR_OPEN_TIME;
-          clearAllOrdersAtThisFloor();
+			if(readStop()){
+				clearAllOrders();
+			}
+			// reset timer
+			emergencyState = false;
+			endTime = clock() / CLOCKS_PER_SEC + DOOR_OPEN_TIME;
+			clearAllOrdersAtThisFloor();
         }
         startTime = clock()/ CLOCKS_PER_SEC;
     }
