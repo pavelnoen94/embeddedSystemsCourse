@@ -10,94 +10,110 @@
 #include "headers/interface.h"
 #include "headers/modeSelector.h"
 
-static void sigint_handler(int sig) {
-  (void)(sig);
-  printf("\nResieved signal %d, Terminating elevator\n", sig);
-  hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-  exit(0);
+static void sigHandler(int sig) {
+
+	switch(sig){
+		case SIGSEGV:
+			printf("[Warning]: Recieved Segmentation fault.\n");
+			return;
+		case SIGINT:
+
+		default:
+			printf("Resieved signal %d, Terminating elevator\n", sig);
+			hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+			exit(0);
+	}
+
 }
-
 void startUp() {
-  // connect to hardware
-  int error = hardware_init();
-  if (error != 0) {
-    fprintf(stderr, "Unable to initialize hardware\n");
-    exit(1);
-  }
+	printf("\n");
+	// connect to hardware
+	int error = hardware_init();
+	if (error != 0) {
+		fprintf(stderr, "Unable to initialize hardware\n");
+		exit(1);
+	}
 
-  elevatorStop();
-  clearAllOrders();
-  closeDoor();
+  	elevatorStop();
+  	clearAllOrders();
+  	closeDoor();
 
-  // crash handling
-  printf("\nTo terminalte program press ctrl+c or type 'kill -9 %d in terminal'\n", getpid());
-  signal(SIGINT, sigint_handler);
-  signal(SIGTERM, sigint_handler);
-  signal(SIGSEGV, sigint_handler);
+	// crash handling
+	printf("To terminalte program press ctrl+c or type 'kill -9 %d in terminal'\n", getpid());
+	signal(SIGTERM, sigHandler);
+	signal(SIGKILL, sigHandler);
+	signal(SIGSEGV, sigHandler);
 
-  // find floor
-  readFloorSensors();
-  if (!atSomeFloor()) {
-    elevatorMoveUp();
-    while (!atSomeFloor()) {
-      readFloorSensors();
-    }
-  }
-  
-  printf("\ninit complete!\n");
-  elevatorStop();
+	// find floor
+	updatePosition();
+	if (!atSomeFloor()) {
+		elevatorMoveUp();
+		while (!atSomeFloor()) {
+			updatePosition();
+		}
+	}
+
+	printf("\ninit complete!\n");
+	elevatorStop();
 }
 
 void idle() {
 
-  while (!hasOrders) {
-    getOrders();
-    
-    if(readStop() || orderAt(lastKnownFloor)){
-      return;
-    }
-  }
-  
+	while (!hasOrders) {
+		getOrders();
+
+		if(readStop() || orderAt(position.lastKnownFloor)){
+			return;
+		}
+	}
+
 }
 
 void running() {
 
-  while (hasOrders) {
-    getOrders();
-    readFloorSensors();
-    findTargetFloor();
-    //gotoFloor(targetFloor);
+	while (hasOrders) {
+		// update sensors and set direction
+		
+		getOrders();
+		updatePosition();
+		direction = getDirection(getTargetFloor());
+		
+		// wait untill a floor with orders is reached
+		while(!atTargetFloor()){
+			findTargetFloor();
+			if(((targetFloor > position.lastKnownFloor) && direction == DOWN ) || ((targetFloor < position.lastKnownFloor) && (direction == UP))){
+				printf("[Warning]: Elevator is moving in oposite direction of order.\n");
+				break;
+			}
 
-    direction = getDirection(getTargetFloor());
+			if (direction == UP) {
+				elevatorMoveUp();
+			}
 
-    if (direction == UP) {
-      elevatorMoveUp();
-    }
+			if (direction == DOWN) {
+				elevatorMoveDown();
+			}
 
-    if (direction == DOWN) {
-      elevatorMoveDown();
-    }
+			
+			getOrders();
+			updatePosition();
+			
+			if(readStop()){
+				return;
+			}
 
-    if (direction == NONE) {
-      return;
-    }
+		}
 
-    while(!atSomeFloor()){
-      runningModeReader();
-      if(readStop()){
-        return;
-      }
-
-    }
-    return;
-  }
+		elevatorStop();
+		return;
+	}
 }
 
 void serveFloor(){
     if(!atSomeFloor()){
       return;
     }
-    readFloorSensors();
+    updatePosition();
     clearAllOrdersAtThisFloor();
     elevatorStop();
     openDoor();
@@ -112,9 +128,12 @@ void serveFloor(){
         getOrders();
 
         if(readObstruction() || readStop() || orderAt(getLastKnownFloor())){
-            // reset timer
-            endTime = clock() / CLOCKS_PER_SEC + DOOR_OPEN_TIME;
-            clearAllOrdersAtThisFloor();
+			if(readStop()){
+				clearAllOrders();
+			}
+			// reset timer
+			endTime = clock() / CLOCKS_PER_SEC + DOOR_OPEN_TIME;
+			clearAllOrdersAtThisFloor();
         }
         startTime = clock()/ CLOCKS_PER_SEC;
     }
@@ -124,48 +143,11 @@ void serveFloor(){
 
 }
 
-void gotoFloor(int floor) {
-  if (!isValidFloor(floor)) {
-    printf("\nError: invalid argument in gotoFloor(%d)\n", floor);
-  }
-
-  setTargetFloor(floor);
-  direction = getDirection(getTargetFloor());
-
-  if (direction == UP) {
-    elevatorMoveUp();
-  }
-
-  if (direction == DOWN) {
-    elevatorMoveDown();
-  }
-
-  if (direction == NONE) {
-    serveFloor();
-  }
-
-  bool targetReached = false;
-  while (!targetReached) {
-    readFloorSensors();
-    getOrders();
-
-    if (lastKnownFloor == getTargetFloor()) {
-      targetReached = true;
-      clearAllOrdersAtThisFloor();
-      serveFloor();
-    }
-
-    if (atSomeFloor()) {
-      if (direction == UP && (upOrders[lastKnownFloor] || insideOrders[lastKnownFloor])) {
-      }
-    }
-  }
-  elevatorStop();
-}
-
 void emergency() {
+	emergencyState = true;
   clearAllOrders();
   elevatorStop();
+
   while(readStop()){
 
   }

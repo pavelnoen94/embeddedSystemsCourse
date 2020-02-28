@@ -6,54 +6,63 @@
 void modeSelector(){
 
     startUp();
-    status = IDLE;
+    static Status status = IDLE;   
+    direction = NONE;
     while(1){
 
         if(status == UNKNOWN){
-            // find the perfect status
+
+            getOrders();
+            findTargetFloor();
+
+            if(readStop() && atSomeFloor()){
+                clearAllOrders();
+                status = SERVING;
+                continue;
+            }
             if(readStop()){
                 status = STOP;
                 continue;
             }
-            getOrders();
-            findTargetFloor();
-            
-            
-            if(checkIfAtTargetFloor()) {
+
+            if(hasOrders && atTargetFloor()) {
                 status = SERVING;
                 continue;
+
             }
             if (hasOrders) {
                 status = RUNNING;
                 continue;
+
             }
             status = IDLE;
             continue;
         }
+
         if(status == IDLE){
-            // loop
+
             idle();
             status = UNKNOWN;
             continue;
         }
 
         if(status == SERVING){
-            // loop
+
             serveFloor();
             status = UNKNOWN;
             continue;
         }
         
         if(status == RUNNING) {
-            // loop
+
             running();
             status = UNKNOWN;
 
-            continue;
+            continue; // direction is set and some floor is reached
         }
         
         if(status == STOP) {
-            // loop
+
             emergency();
             status = UNKNOWN;
             continue;
@@ -62,22 +71,3 @@ void modeSelector(){
         status = UNKNOWN;
     }
 }
-
-void selectorUnknown(){
-    getOrders();
-    
-}
-void selectorIdle(){
-
-}
-void selectorServing(){
-
-}
-void selectorMoving(){
-
-}
-void selectorStop(){
-
-}
-
-

@@ -12,7 +12,11 @@
 #include <stdlib.h>
 #include "hardware.h"
 
-#define DOOR_OPEN_TIME 1
+/**
+ * @brief Time [s] elevator door is held open when openDoors() is called.
+ * 
+ */
+#define DOOR_OPEN_TIME 3
 
 /**
  * @brief Static boolean array, where index 0-3 represents floor 1-4, and value @c true represents an order in direction @c UP at that floor.
@@ -50,8 +54,6 @@ bool obstruction;
  * @brief The previous floor the elevator was known to be at.
  * 
  */
-int lastKnownFloor;
-
 
 /**
  * @brief The different movement directions the elevator can have.
@@ -66,8 +68,9 @@ typedef enum {
 
 
 /**
- * @brief Structure to remember if the elevator above or below a sertain floor
- * 
+ * @struct Position elevator.h "headers/elevator.h"
+ * @brief Structure for storing information on the elevator's position.
+ * @details Contains variables from which the elevator's position can be extrapolated.
  */
 typedef struct{
     int lastKnownFloor;
@@ -82,20 +85,8 @@ Position position;
 Direction direction;
 
 /**
- * @brief Main program loop. Call to initiate and run elevator control logic.
- * 
- * @code
- * //Example:
- * 
- * #include <elevator.h>
- * 
- * int main(){
- *     Elevator();
- * }
- * @endcode
- * 
+ * @brief Current target floor; where the elevator is currently headed.
  */
-
 int targetFloor;
 
 #endif
