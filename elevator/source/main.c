@@ -1,8 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include "headers/modeSelector.h"
-#include "headers/hardware.h"
-#include <stdbool.h>
+#include "headers/elevator.h"
 
 int main(){
     modeSelector();

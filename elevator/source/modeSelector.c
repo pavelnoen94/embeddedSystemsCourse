@@ -4,11 +4,7 @@
 #include "headers/interface.h"
 
 void modeSelector(){
-    ElevatorData elevator;
-    elevator.status = IDLE;   
-    elevator.direction = NONE;
-    elevator.emergencyState = false;
-
+    Elevator elevator;
     startUp(&elevator);
 
     while(1){

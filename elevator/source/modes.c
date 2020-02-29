@@ -1,5 +1,7 @@
 #include <signal.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
@@ -22,7 +24,7 @@ static void sigHandler(int sig) {
 	}
 }
 
-void startUp(ElevatorData* elevator) {
+void startUp(Elevator* elevator) {
 	printf("\n");
 	// connect to hardware
 	int error = hardware_init();
@@ -31,6 +33,10 @@ void startUp(ElevatorData* elevator) {
 		exit(1);
 	}
 
+	// clear old data
+	elevator->status = UNKNOWN;
+	elevator->direction = NONE;
+	elevator->emergencyState = false;
 	elevatorStop();
 	clearAllOrders(elevator);
 	closeDoor();
@@ -54,7 +60,7 @@ void startUp(ElevatorData* elevator) {
 	elevatorStop();
 }
 
-void idle(ElevatorData* elevator) {
+void idle(Elevator* elevator) {
 	readFloorSensors(elevator);
 
 	while (!elevator->hasOrders) {
@@ -66,7 +72,7 @@ void idle(ElevatorData* elevator) {
 	}
 }
 
-void running(ElevatorData* elevator) {
+void running(Elevator* elevator) {
 
 	while (elevator->hasOrders) {
 		// update sensors and set direction
@@ -107,7 +113,7 @@ void running(ElevatorData* elevator) {
 	}
 }
 
-void serveFloor(ElevatorData* elevator){
+void serveFloor(Elevator* elevator){
 	if(!atSomeFloor()){
 		return;
 	}
@@ -140,7 +146,7 @@ void serveFloor(ElevatorData* elevator){
 
 }
 
-void emergency(ElevatorData* elevator) {
+void emergency(Elevator* elevator) {
 	elevator->emergencyState = true;
 	clearAllOrders(elevator);
 	elevatorStop();

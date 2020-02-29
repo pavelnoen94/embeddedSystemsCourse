@@ -1,29 +1,24 @@
-#pragma once
+#ifndef ELEVATOR_INTERFACE_H
+#define ELEVATOR_INTERFACE_H
 #include "elevator.h"
 
-/**
- * @file 
- * @brief Library of high level functions pertaining to commanding and inquiring about the elevator.
- * @details Collection of polling, check and variable-setting functions to be used as
- * parts of the program loops. Abstracts the interface with @c hardware.h to increase code readability.
- * 
- */
 bool atSomeFloor();
-bool atTargetFloor(ElevatorData*);
+bool atTargetFloor(Elevator*);
 bool isValidFloor(int);
 bool onFloor(int);
-bool orderAt(ElevatorData* elevator, int);
-bool ordersInCurrentDirection(ElevatorData*);
+bool orderAt(Elevator* elevator, int);
+bool ordersInCurrentDirection(Elevator*);
 bool readObstruction();
 bool readStop();
-void getDirection(ElevatorData* elevator);
-void clearAllOrders(ElevatorData*);
-void clearAllOrdersAtThisFloor(ElevatorData*);
+void clearAllOrders(Elevator*);
+void clearAllOrdersAtThisFloor(Elevator*);
 void closeDoor();
 void elevatorMoveDown();
 void elevatorMoveUp();
 void elevatorStop();
-void findTargetFloor(ElevatorData*);
-void getOrders(ElevatorData*);
+void findTargetFloor(Elevator*);
+void getDirection(Elevator* elevator);
+void getOrders(Elevator*);
 void openDoor();
-void readFloorSensors(ElevatorData*);
+void readFloorSensors(Elevator*);
+#endif
