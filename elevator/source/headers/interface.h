@@ -8,22 +8,22 @@
  * parts of the program loops. Abstracts the interface with @c hardware.h to increase code readability.
  * 
  */
-bool readObstruction();
-void clearAllOrders();
-void clearAllOrdersAtThisFloor();
-bool readStop();
-void openDoor();
-void closeDoor();
-void readFloorSensors();
-bool orderAt(int);
-Direction getDirection(int targetFloor);
-bool ordersInCurrentDirection();
-bool onFloor(int);
-void elevatorStop();
-void elevatorMoveUp();
-void elevatorMoveDown();
 bool atSomeFloor();
-bool isValidFloor();
-void getOrders();
-bool atTargetFloor();
-void findTargetFloor();
+bool atTargetFloor(ElevatorData*);
+bool isValidFloor(int);
+bool onFloor(int);
+bool orderAt(ElevatorData* elevator, int);
+bool ordersInCurrentDirection(ElevatorData*);
+bool readObstruction();
+bool readStop();
+Direction getDirection(ElevatorData* elevator, int targetFloor);
+void clearAllOrders(ElevatorData*);
+void clearAllOrdersAtThisFloor(ElevatorData*);
+void closeDoor();
+void elevatorMoveDown();
+void elevatorMoveUp();
+void elevatorStop();
+void findTargetFloor(ElevatorData*);
+void getOrders(ElevatorData*);
+void openDoor();
+void readFloorSensors(ElevatorData*);

@@ -81,18 +81,26 @@ Direction direction;
  */
 int targetFloor;
 
+typedef enum{
+    IDLE,
+    SERVING,
+    RUNNING,
+    OPENDOOR,
+    STOP,
+    UNKNOWN
+} Status;
+
+
 typedef struct{
     Direction direction;
     int lastKnownFloor;
     bool emergencyState;
+    Status status;
     int targetFloor;
     bool upOrders[HARDWARE_NUMBER_OF_FLOORS];
     bool downOrders[HARDWARE_NUMBER_OF_FLOORS];
     bool insideOrders[HARDWARE_NUMBER_OF_FLOORS];
     bool hasOrders;
 }ElevatorData;
-ElevatorData elevator;
-
-
 
 #endif

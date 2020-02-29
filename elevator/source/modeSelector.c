@@ -5,69 +5,73 @@
 
 void modeSelector(){
 
-    startUp();
-    static Status status = IDLE;   
-    direction = NONE;
+    ElevatorData elevator;
+    elevator.status = IDLE;   
+    elevator.direction = NONE;
+    elevator.emergencyState = false;
+
+    startUp(&elevator);
+
     while(1){
 
-        if(status == UNKNOWN){
+        if(elevator.status == UNKNOWN){
 
-            getOrders();
-            findTargetFloor();
+            getOrders(&elevator);
+            findTargetFloor(&elevator);
 
             if(readStop() && atSomeFloor()){
-                clearAllOrders();
-                status = SERVING;
+                clearAllOrders(&elevator);
+                elevator.status = SERVING;
                 continue;
             }
             if(readStop()){
-                status = STOP;
+                elevator.status = STOP;
                 continue;
             }
 
-            if(hasOrders && atTargetFloor()) {
-                status = SERVING;
+            if(elevator.hasOrders && atTargetFloor(&elevator)) {
+                elevator.status = SERVING;
                 continue;
 
             }
-            if (hasOrders) {
-                status = RUNNING;
+            if (elevator.hasOrders) {
+                elevator.status = RUNNING;
                 continue;
 
             }
-            status = IDLE;
+            elevator.status = IDLE;
             continue;
         }
 
-        if(status == IDLE){
+        if(elevator.status == IDLE){
 
-            idle();
-            status = UNKNOWN;
+            idle(&elevator);
+            elevator.status = UNKNOWN;
             continue;
         }
 
-        if(status == SERVING){
+        if(elevator.status == SERVING){
 
-            serveFloor();
-            status = UNKNOWN;
+            serveFloor(&elevator);
+            elevator.status = UNKNOWN;
             continue;
         }
         
-        if(status == RUNNING) {
+        if(elevator.status == RUNNING) {
 
-            running();
-            status = UNKNOWN;
+            running(&elevator);
+            elevator.status = UNKNOWN;
 
             continue; // direction is set and some floor is reached
         }
         
-        if(status == STOP) {
+        if(elevator.status == STOP) {
 
-            emergency();
-            status = UNKNOWN;
+            emergency(&elevator);
+            elevator.status = UNKNOWN;
             continue;
         }
 
-        status = UNKNOWN;
+        elevator.status = UNKNOWN;
     }
 }

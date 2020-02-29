@@ -6,7 +6,6 @@
 
 
 int main(){
-
    modeSelector();
 
     return 0;
