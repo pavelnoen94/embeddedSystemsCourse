@@ -4,10 +4,8 @@
 #include "headers/hardware.h"
 #include <stdbool.h>
 
-
 int main(){
-   modeSelector();
+    modeSelector();
 
     return 0;
 }
-

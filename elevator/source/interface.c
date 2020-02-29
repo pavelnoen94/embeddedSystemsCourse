@@ -4,15 +4,27 @@
 #include "headers/interface.h"
 #include "headers/modes.h"
 
+static void flipDir(ElevatorData* elevator){
+    if(elevator->direction == UP){
+        elevator->direction = DOWN;
+        elevator->lastKnownFloor++;
+        return;
+    }
+    if(elevator->direction == DOWN){
+        elevator->direction = UP;
+        elevator->lastKnownFloor--;
+        return;
+    }
+}
+
 bool atSomeFloor(){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         if(hardware_read_floor_sensor(i)){
             return true;
         }
-    }
+        }
     return false;
 }
-
 
 bool atTargetFloor(ElevatorData* elevator) {
     if(!atSomeFloor()){
@@ -37,10 +49,8 @@ bool atTargetFloor(ElevatorData* elevator) {
                     elevator->targetFloor = i;
                     if (onFloor(elevator->targetFloor)) {         
                         return true;
-                    }
-                    else                                       
-                    {
-                        return false;
+                    }else{
+                    return false;
                     }
                 }
             }
@@ -49,11 +59,11 @@ bool atTargetFloor(ElevatorData* elevator) {
 
     if (elevator->direction == DOWN) {
         if(ordersInCurrentDirection(elevator)){
-            // scan orders in down direction
+        // scan orders in down direction
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {
-                if ((elevator->downOrders[i] || elevator->insideOrders[i]) && onFloor(i)){
-                    return true;
-                }
+            if ((elevator->downOrders[i] || elevator->insideOrders[i]) && onFloor(i)){
+                return true;
+            }
             }
         }else{
             // scan orders in oposite direction starting from the bottom
@@ -62,9 +72,7 @@ bool atTargetFloor(ElevatorData* elevator) {
                     elevator->targetFloor = i;
                     if (onFloor(elevator->targetFloor)) {
                         return true;
-                    }
-                    else
-                    {
+                    }else{
                         return false;
                     }
                 }
@@ -80,7 +88,6 @@ bool isValidFloor(int floor){
     }
     return true;
 }
-
 
 bool onFloor(int floor){
     return hardware_read_floor_sensor(floor);
@@ -113,47 +120,40 @@ bool readObstruction(){
     return hardware_read_obstruction_signal();
 }
 
-
 bool readStop(){
     hardware_command_stop_light(hardware_read_stop_signal());
     return hardware_read_stop_signal();
 }
 
-
-Direction getDirection(ElevatorData* elevator, int targetFloor){
-
-    if(targetFloor == elevator->lastKnownFloor && atSomeFloor()){
-        return NONE;
+void getDirection(ElevatorData* elevator){
+    if(elevator->targetFloor == elevator->lastKnownFloor && atSomeFloor()){
+        elevator->direction = NONE;
+        return;
     }
 
     // elevator stopped. if new floor is in oposite direction flip the direction and change the last known floor.
     if(elevator->emergencyState && !atSomeFloor()){
         elevator->emergencyState = false;
 
-        // elevator ordered back.
-        if(elevator->targetFloor == elevator->lastKnownFloor){
-            if(elevator->direction == UP){
-                elevator->lastKnownFloor++;
-                return DOWN;
+        if(elevator->direction == UP){
+            if(elevator->targetFloor <= elevator->lastKnownFloor){
+                flipDir(elevator);
+                return;
             }
-
-            elevator->lastKnownFloor--;
-            return UP;
         }
-
-        if(elevator->targetFloor > elevator->lastKnownFloor){
-            return UP;
+        if(elevator->direction == DOWN){
+            if(elevator->targetFloor >= elevator->lastKnownFloor){
+                flipDir(elevator);
+                return;
+            }
         }
-
-        return DOWN;
-        
     }
-    elevator->emergencyState = false;
 
     if(elevator->targetFloor > elevator->lastKnownFloor){
-        return UP;
+        elevator->direction = UP;
+        return;
     }
-    return DOWN;
+    elevator->direction = DOWN;
 }
 
 
@@ -204,6 +204,7 @@ void findTargetFloor(ElevatorData* elevator){
             }
         }
     }
+
     // scan floors upwards and then downwards
     if(elevator->direction == UP){
         for(int i = elevator->lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -215,10 +216,11 @@ void findTargetFloor(ElevatorData* elevator){
         for(int i = HARDWARE_NUMBER_OF_FLOORS - 1; i > 0; i--){
             if(elevator->downOrders[i] || elevator->insideOrders[i]){
                 elevator->targetFloor = i;
-                return;
+            return;
             }
         }
     }
+
     // scan floors downwards and then upwards
     if(elevator->direction == DOWN){
         for(int i = elevator->lastKnownFloor; i > 0; i--){
@@ -235,12 +237,18 @@ void findTargetFloor(ElevatorData* elevator){
         }
     }
 
+    // If elevator has been stopped and the tagetFloor has never been found.
+    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+        if(elevator->upOrders[i] || elevator->downOrders[i] || elevator->insideOrders[i]){
+            targetFloor = i;
+            return;
+        }
+    }
 }
 
 void getOrders(ElevatorData* elevator){
     elevator->hasOrders = false;
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-
         // read order buttons
         elevator->upOrders[i] = elevator->upOrders[i] || hardware_read_order(i,HARDWARE_ORDER_UP);
         elevator->downOrders[i] = elevator->downOrders[i] || hardware_read_order(i,HARDWARE_ORDER_DOWN);

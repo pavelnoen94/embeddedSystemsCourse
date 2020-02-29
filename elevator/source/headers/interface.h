@@ -16,7 +16,7 @@ bool orderAt(ElevatorData* elevator, int);
 bool ordersInCurrentDirection(ElevatorData*);
 bool readObstruction();
 bool readStop();
-Direction getDirection(ElevatorData* elevator, int targetFloor);
+void getDirection(ElevatorData* elevator);
 void clearAllOrders(ElevatorData*);
 void clearAllOrdersAtThisFloor(ElevatorData*);
 void closeDoor();

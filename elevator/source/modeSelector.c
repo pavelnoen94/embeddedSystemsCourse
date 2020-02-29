@@ -4,7 +4,6 @@
 #include "headers/interface.h"
 
 void modeSelector(){
-
     ElevatorData elevator;
     elevator.status = IDLE;   
     elevator.direction = NONE;
@@ -13,9 +12,7 @@ void modeSelector(){
     startUp(&elevator);
 
     while(1){
-
         if(elevator.status == UNKNOWN){
-
             getOrders(&elevator);
             findTargetFloor(&elevator);
 
@@ -24,6 +21,7 @@ void modeSelector(){
                 elevator.status = SERVING;
                 continue;
             }
+
             if(readStop()){
                 elevator.status = STOP;
                 continue;
@@ -32,46 +30,41 @@ void modeSelector(){
             if(elevator.hasOrders && atTargetFloor(&elevator)) {
                 elevator.status = SERVING;
                 continue;
-
             }
+
             if (elevator.hasOrders) {
                 elevator.status = RUNNING;
                 continue;
-
             }
+
             elevator.status = IDLE;
             continue;
         }
 
         if(elevator.status == IDLE){
-
             idle(&elevator);
             elevator.status = UNKNOWN;
             continue;
         }
 
         if(elevator.status == SERVING){
-
             serveFloor(&elevator);
             elevator.status = UNKNOWN;
             continue;
         }
-        
-        if(elevator.status == RUNNING) {
 
+        if(elevator.status == RUNNING){
             running(&elevator);
             elevator.status = UNKNOWN;
-
-            continue; // direction is set and some floor is reached
+            continue;
         }
-        
-        if(elevator.status == STOP) {
 
+        if(elevator.status == STOP){
             emergency(&elevator);
             elevator.status = UNKNOWN;
             continue;
         }
 
-        elevator.status = UNKNOWN;
+    elevator.status = UNKNOWN;
     }
 }
