@@ -81,4 +81,18 @@ Direction direction;
  */
 int targetFloor;
 
+typedef struct{
+    Direction direction;
+    int lastKnownFloor;
+    bool emergencyState;
+    int targetFloor;
+    bool upOrders[HARDWARE_NUMBER_OF_FLOORS];
+    bool downOrders[HARDWARE_NUMBER_OF_FLOORS];
+    bool insideOrders[HARDWARE_NUMBER_OF_FLOORS];
+    bool hasOrders;
+}ElevatorData;
+ElevatorData elevator;
+
+
+
 #endif
