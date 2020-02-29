@@ -4,70 +4,63 @@
 #include "headers/interface.h"
 
 void modeSelector(){
+    Elevator elevator;
+    startUp(&elevator);
 
-    startUp();
-    static Status status = IDLE;   
-    direction = NONE;
     while(1){
-
-        if(status == UNKNOWN){
-
-            getOrders();
-            findTargetFloor();
+        if(elevator.status == UNKNOWN){
+            getOrders(&elevator);
+            findTargetFloor(&elevator);
 
             if(readStop() && atSomeFloor()){
-                clearAllOrders();
-                status = SERVING;
+                clearAllOrders(&elevator);
+                elevator.status = SERVING;
                 continue;
             }
+
             if(readStop()){
-                status = STOP;
+                elevator.status = STOP;
                 continue;
             }
 
-            if(hasOrders && atTargetFloor()) {
-                status = SERVING;
+            if(elevator.hasOrders && atTargetFloor(&elevator)) {
+                elevator.status = SERVING;
                 continue;
-
             }
-            if (hasOrders) {
-                status = RUNNING;
+
+            if (elevator.hasOrders) {
+                elevator.status = RUNNING;
                 continue;
-
             }
-            status = IDLE;
+
+            elevator.status = IDLE;
             continue;
         }
 
-        if(status == IDLE){
-
-            idle();
-            status = UNKNOWN;
+        if(elevator.status == IDLE){
+            idle(&elevator);
+            elevator.status = UNKNOWN;
             continue;
         }
 
-        if(status == SERVING){
-
-            serveFloor();
-            status = UNKNOWN;
-            continue;
-        }
-        
-        if(status == RUNNING) {
-
-            running();
-            status = UNKNOWN;
-
-            continue; // direction is set and some floor is reached
-        }
-        
-        if(status == STOP) {
-
-            emergency();
-            status = UNKNOWN;
+        if(elevator.status == SERVING){
+            serveFloor(&elevator);
+            elevator.status = UNKNOWN;
             continue;
         }
 
-        status = UNKNOWN;
+        if(elevator.status == RUNNING){
+            running(&elevator);
+            elevator.status = UNKNOWN;
+            continue;
+        }
+
+        if(elevator.status == STOP){
+            emergency(&elevator);
+            elevator.status = UNKNOWN;
+            continue;
+        }
+
+    elevator.status = UNKNOWN;
     }
 }
