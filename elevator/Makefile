@@ -1,4 +1,4 @@
-SOURCES := main.c modes.c modeReaders.c interface.c modeSelector.c
+SOURCES := main.c modes.c interface.c modeSelector.c
 
 SOURCE_DIR := source
 BUILD_DIR := build
