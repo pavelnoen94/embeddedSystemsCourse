@@ -58,6 +58,7 @@ void startUp() {
 }
 
 void idle() {
+	readFloorSensors();
 
 	while (!hasOrders) {
 		getOrders();
@@ -82,7 +83,7 @@ void running() {
 		while(!atTargetFloor()){
 			findTargetFloor();
 			if(((targetFloor > position.lastKnownFloor) && direction == DOWN ) || ((targetFloor < position.lastKnownFloor) && (direction == UP))){
-				printf("[Warning]: Elevator is moving in oposite direction of order.\n");
+				printf("[Warning]: Elevator is moving in opposite direction of order.\n");
 				break;
 			}
 

@@ -106,8 +106,9 @@ Direction getDirection(int targetFloor){
     }
     return DOWN;
 }
-/*
+
 void findTargetFloor(){
+    // scan all floors
     if(direction == NONE || emergencyState){
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(upOrders[i] || downOrders[i] || insideOrders[i]){
@@ -116,7 +117,7 @@ void findTargetFloor(){
             }
         }
     }
-
+    // scan floors upwards and then downwards
     if(direction == UP){
         for(int i = position.lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(upOrders[i] || insideOrders[i]){
@@ -131,7 +132,7 @@ void findTargetFloor(){
             }
         }
     }
-
+    // scan floors downwards and then upwards
     if(direction == DOWN){
         for(int i = position.lastKnownFloor; i > 0; i--){
             if(downOrders[i] || insideOrders[i]){
@@ -148,14 +149,12 @@ void findTargetFloor(){
     }
 
 }
-*/
 
-/*
 bool orderAt(int floor){
     getOrders();
     return insideOrders[floor] || upOrders[floor] || downOrders[floor];
 }
-*/
+
 
 bool onFloor(int floor){
     return hardware_read_floor_sensor(floor);
@@ -216,23 +215,22 @@ bool atTargetFloor() {
         return false;
     }
     if(direction == NONE){
-        return position.lastKnownFloor == targetFloor ? true : false;    // If lastKnownFloor == targetFloor, return true
+        return position.lastKnownFloor == targetFloor ? true : false;
     }
-
 
     if (direction == UP) {
         if(ordersInCurrentDirection()){
+            // Scan orders in up direction
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
                 if ((upOrders[i] || insideOrders[i]) && onFloor(i)){    
                     return true;
                 }
             }  
-        }
-        else{
-            for (int i = HARDWARE_NUMBER_OF_FLOORS - 1; i >= 0; i --) {      // If direction is up and there are no upOrders, iterate through downOrders starting from floor <highest>
-                
+        }else{
+            // scan orders in oposite direction starting at top floor
+            for (int i = HARDWARE_NUMBER_OF_FLOORS - 1; i >= 0; i--) {
                 if ((downOrders[i] || insideOrders[i])){
-                    targetFloor = i;                           // Written like this for readability; Target floor becomes the top-most floor in "wrong-queue" - only at that one shall the elevator stop
+                    targetFloor = i;
                     if (onFloor(targetFloor)) {         
                         return true;
                     }
@@ -247,13 +245,14 @@ bool atTargetFloor() {
 
     if (direction == DOWN) {
         if(ordersInCurrentDirection()){
+            // scan orders in down direction
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {
                 if ((downOrders[i] || insideOrders[i]) && onFloor(i)){
                     return true;
                 }
             }
-        }
-        else{
+        }else{
+            // scan orders in oposite direction starting from the bottom
             for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
                 if ((upOrders[i] || insideOrders[i])) {
                     targetFloor = i;
@@ -287,14 +286,4 @@ bool ordersInCurrentDirection(){
         }
     }
     return false;
-}
-
-void updateHasOrders(){
-    hasOrders = false;
-    for (int i; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
-        if (upOrders[i] || downOrders[i]) {
-            hasOrders = true;
-            return;
-        }
-    }
 }

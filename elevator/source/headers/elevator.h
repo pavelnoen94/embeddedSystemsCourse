@@ -60,8 +60,6 @@ typedef enum {
     DOWN
 } Direction;
 
-
-
 /**
  * @struct Position elevator.h "headers/elevator.h"
  * @brief Structure for storing information on the elevator's position.
