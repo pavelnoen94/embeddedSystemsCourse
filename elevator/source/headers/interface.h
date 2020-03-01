@@ -3,22 +3,19 @@
 #include "elevator.h"
 
 bool atSomeFloor();
-bool atTargetFloor(Elevator*);
-bool isValidFloor(int);
-bool onFloor(int);
-bool orderAt(Elevator* elevator, int);
-bool ordersInCurrentDirection(Elevator*);
+bool atTargetFloor(Elevator* elevatorInstance);
+bool orderAt(Elevator* elevatorInstance, int floorNumber);
 bool readObstruction();
 bool readStop();
-void clearAllOrders(Elevator*);
-void clearAllOrdersAtThisFloor(Elevator*);
+void clearAllOrders(Elevator* elevatorInstance);
+void clearAllOrdersAtThisFloor(Elevator* elevatorInstance);
 void closeDoor();
 void elevatorMoveDown();
 void elevatorMoveUp();
 void elevatorStop();
-void findTargetFloor(Elevator*);
-void getDirection(Elevator* elevator);
-void getOrders(Elevator*);
+void findTargetFloor(Elevator* elevatorInstance);
+void updateDirection(Elevator* elevatorInstance);
+void updateOrders(Elevator* elevatorInstance);
 void openDoor();
-void readFloorSensors(Elevator*);
+void updateLastFloor(Elevator* elevatorInstance);
 #endif
