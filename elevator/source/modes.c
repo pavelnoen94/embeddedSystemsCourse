@@ -89,16 +89,6 @@ void running(Elevator* elevator) {
 
 			elevator->direction == UP ? elevatorMoveUp() : elevatorMoveDown();
 
-			{ // dead code
-				if (elevator->direction == UP) {
-					elevatorMoveUp();
-				}
-
-				if (elevator->direction == DOWN) {
-					elevatorMoveDown();
-				}
-			}
-
 			updateOrders(elevator);
 			updateLastFloor(elevator);
 
