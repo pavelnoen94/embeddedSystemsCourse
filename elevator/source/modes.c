@@ -15,9 +15,9 @@ static void sigHandler(int sig) {
 
 	switch(sig){
 		case SIGSEGV:
-			// ignore and continue
 			printf("[Warning]: Recieved Segmentation fault.\n");
-			return;
+			hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+			exit(1);
 		default:
 			printf("[Error]: Resieved signal %d, Terminating elevator\n", sig);
 			hardware_command_movement(HARDWARE_MOVEMENT_STOP);
@@ -26,8 +26,6 @@ static void sigHandler(int sig) {
 }
 
 void startUp(Elevator* elevator) {
-	printf("\n");
-
 	// connect to hardware
 	if (hardware_init()) {
 		fprintf(stderr, "[Error]: Unable to initialize hardware\n");
@@ -43,7 +41,7 @@ void startUp(Elevator* elevator) {
 	closeDoor();
 
 	// crash handling
-	printf("[Info]: To terminalte program press ctrl+c or type in terminal: \n\nkill -9 %d in terminal\n\n", getpid());
+	printf("[Info]: To terminalte program run: kill -9 %d\n", getpid());
 	signal(SIGTERM, sigHandler);
 	signal(SIGKILL, sigHandler);
 	signal(SIGSEGV, sigHandler);
@@ -57,7 +55,7 @@ void startUp(Elevator* elevator) {
 		}
 	}
 
-	printf("[Info]: Elevator ready\n");
+	printf("[Info]: Elevator started\n");
 	elevatorStop();
 }
 
@@ -81,11 +79,6 @@ void running(Elevator* elevator) {
 
 		// wait untill a floor with orders is reached
 		while(!atTargetFloor(elevator)){
-
-			if(((elevator->targetFloor > elevator->lastKnownFloor) && elevator->direction == DOWN ) || ((elevator->targetFloor < elevator->lastKnownFloor) && (elevator->direction == UP))){
-				printf("[Warning]: Elevator was moving in opposite direction of order.\n");
-				break;
-			}
 
 			elevator->direction == UP ? elevatorMoveUp() : elevatorMoveDown();
 
