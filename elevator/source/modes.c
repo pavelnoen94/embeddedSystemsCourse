@@ -18,6 +18,7 @@ static void sigHandler(int sig) {
 			printf("[Warning]: Recieved Segmentation fault.\n");
 			hardware_command_movement(HARDWARE_MOVEMENT_STOP);
 			exit(1);
+			break;
 		default:
 			printf("[Error]: Resieved signal %d, Terminating elevator\n", sig);
 			hardware_command_movement(HARDWARE_MOVEMENT_STOP);
@@ -41,9 +42,8 @@ void startUp(Elevator* elevator) {
 	closeDoor();
 
 	// crash handling
-	printf("[Info]: To terminalte program run: kill -9 %d\n", getpid());
+	printf("[Info]: To terminalte program run: kill -15 %d\n", getpid());
 	signal(SIGTERM, sigHandler);
-	signal(SIGKILL, sigHandler);
 	signal(SIGSEGV, sigHandler);
 
 	// find floor
