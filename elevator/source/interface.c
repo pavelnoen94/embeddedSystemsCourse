@@ -180,6 +180,7 @@ void findTargetFloor(Elevator* elevator){
             }
         }
     }
+    elevator->direction = NONE;
 
 }
 

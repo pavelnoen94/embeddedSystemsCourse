@@ -1,7 +1,7 @@
 /**
  * @file modes.h
  * @author Pavel Skipenes (pavelgs@stud.ntnu.no) , Sindre Øversveen 
- * @brief Modes in whitch the elevator can be operated in
+ * @brief Modes in witch the elevator can be operated in
  * @version 0.1
  * @date 2020-03-01
  *  
@@ -13,7 +13,7 @@
  * @brief Enter emergency mode.
  * 
  * Stops the elevator and clears all orders.
- * Will stay in emergency mode untill a new order is given. 
+ * Will stay in emergency mode until a new order is given. 
  * @note make sure to call @c startUp() before using this function 
  * @return Function returns when a new order is detected
  * 
@@ -51,7 +51,7 @@ void serveFloor();
  * @brief Initializer
  * 
  * Call this before entering other modes.
- * This function will return successfully if connection to hardware is succeessfull
+ * This function will return successfully if connection to hardware is successfully
  */
 void startUp();
 #endif

@@ -14,45 +14,42 @@
 #include "hardware.h"
 #include "modeSelector.h"
 
+#ifndef DOXYGEN_SKIP
+    typedef enum {
+        UP,
+        NONE,
+        DOWN
+    } Direction;
+#endif
+
+    typedef enum{
+        IDLE,       ///< Idle
+        SERVING,    ///< Serving a floor and the door is open
+        RUNNING,    ///< Moving between floors
+        STOP,       ///< Cabin has been stopped
+        UNKNOWN     ///< Temporary status in transitions between other statuses.
+    } Status;
+
 /**
  * @brief Door open duration without obstructions.
  * 
  */
 #define DOOR_OPEN_TIME 3
 
-typedef enum {
-    UP,
-    NONE,
-    DOWN
-} Direction;
-
-/**
- * @brief Elevator status.
- * 
- */
-typedef enum{
-    IDLE,
-    SERVING,
-    RUNNING,
-    OPENDOOR,
-    STOP,
-    UNKNOWN
-} Status;
-
 /**
  * @brief Stores elevators' properties.
  * 
  */
 typedef struct{
-    Direction direction;
-    int lastKnownFloor;
-    bool emergencyState;
-    Status status;
-    int targetFloor;
-    bool upOrders[HARDWARE_NUMBER_OF_FLOORS];
-    bool downOrders[HARDWARE_NUMBER_OF_FLOORS];
-    bool insideOrders[HARDWARE_NUMBER_OF_FLOORS];
-    bool hasOrders;
+    Direction direction;                            ///< Stores direction of the elevator
+    int lastKnownFloor;                             ///< Stores last floor the elevator has passed
+    bool emergencyState;                            ///< Active if elevator has been stopped between floors. Turns off at next door open
+    Status status;                                  ///< Stores what state the elevator currently are in
+    int targetFloor;                                ///< Stores the closest target floor in defined direction
+    bool upOrders[HARDWARE_NUMBER_OF_FLOORS];       ///< Array of orders going up
+    bool downOrders[HARDWARE_NUMBER_OF_FLOORS];     ///< Array of orders going down
+    bool insideOrders[HARDWARE_NUMBER_OF_FLOORS];   ///< Array of orders from inside of the cabin
+    bool hasOrders;                                 ///< Stores whenever the elevator has an order
 }Elevator;
 
 /**
@@ -63,7 +60,7 @@ typedef struct{
  * @note Default behaviour is to terminate the elevator if any OS signal is passed to application.
  * Elevator will stop moving before terminating.
  * 
- * start() initializes a new instance of Elevator and start the elevator. No heap allocations are ever occoured in this program.
+ * start() initializes a new instance of Elevator and start the elevator. No heap allocations are ever occurred in this program.
  * 
  */
 inline void start(){

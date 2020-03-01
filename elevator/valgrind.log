@@ -1,0 +1,78 @@
+==2185== Memcheck, a memory error detector
+==2185== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==2185== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==2185== Command: ./elevator
+==2185== 
+==2185== Use of uninitialised value of size 8
+==2185==    at 0x109B90: hardware_command_order_light (hardware.c:193)
+==2185==    by 0x1098AE: hardware_init (hardware.c:55)
+==2185==    by 0x108B51: startUp (modes.c:31)
+==2185==    by 0x10968B: modeSelector (modeSelector.c:8)
+==2185==    by 0x108AD7: main (main.c:6)
+==2185== 
+==2185== Use of uninitialised value of size 8
+==2185==    at 0x109B90: hardware_command_order_light (hardware.c:193)
+==2185==    by 0x1098DC: hardware_init (hardware.c:62)
+==2185==    by 0x108B51: startUp (modes.c:31)
+==2185==    by 0x10968B: modeSelector (modeSelector.c:8)
+==2185==    by 0x108AD7: main (main.c:6)
+==2185== 
+^C==2185== 
+==2185== Process terminating with default action of signal 2 (SIGINT)
+==2185==    at 0x51625D5: ioctl (syscall-template.S:78)
+==2185==    by 0x4E421AD: ??? (in /usr/lib/libcomedi.so.0.10.2)
+==2185==    by 0x4E404FC: comedi_do_insn (in /usr/lib/libcomedi.so.0.10.2)
+==2185==    by 0x4E40F87: comedi_dio_write (in /usr/lib/libcomedi.so.0.10.2)
+==2185==    by 0x109CE6: io_clear_bit (io.c:46)
+==2185==    by 0x109B99: hardware_command_order_light (hardware.c:193)
+==2185==    by 0x109584: updateOrders (interface.c:196)
+==2185==    by 0x109037: orderAt (interface.c:49)
+==2185==    by 0x108E1C: serveFloor (modes.c:113)
+==2185==    by 0x10977B: modeSelector (modeSelector.c:48)
+==2185==    by 0x108AD7: main (main.c:6)
+==2185== 
+==2185== HEAP SUMMARY:
+==2185==     in use at exit: 1,912 bytes in 14 blocks
+==2185==   total heap usage: 28 allocs, 14 frees, 7,196 bytes allocated
+==2185== 
+==2185== 208 bytes in 1 blocks are still reachable in loss record 1 of 3
+==2185==    at 0x4C31B25: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2185==    by 0x4E40074: comedi_open (in /usr/lib/libcomedi.so.0.10.2)
+==2185==    by 0x109BC0: io_init (io.c:22)
+==2185==    by 0x109880: hardware_init (hardware.c:49)
+==2185==    by 0x108B51: startUp (modes.c:31)
+==2185==    by 0x10968B: modeSelector (modeSelector.c:8)
+==2185==    by 0x108AD7: main (main.c:6)
+==2185== 
+==2185== 360 bytes in 12 blocks are still reachable in loss record 2 of 3
+==2185==    at 0x4C31B25: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2185==    by 0x4E413CA: ??? (in /usr/lib/libcomedi.so.0.10.2)
+==2185==    by 0x4E41769: ??? (in /usr/lib/libcomedi.so.0.10.2)
+==2185==    by 0x4E400FD: comedi_open (in /usr/lib/libcomedi.so.0.10.2)
+==2185==    by 0x109BC0: io_init (io.c:22)
+==2185==    by 0x109880: hardware_init (hardware.c:49)
+==2185==    by 0x108B51: startUp (modes.c:31)
+==2185==    by 0x10968B: modeSelector (modeSelector.c:8)
+==2185==    by 0x108AD7: main (main.c:6)
+==2185== 
+==2185== 1,344 bytes in 1 blocks are still reachable in loss record 3 of 3
+==2185==    at 0x4C31B25: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2185==    by 0x4E415A8: ??? (in /usr/lib/libcomedi.so.0.10.2)
+==2185==    by 0x4E400FD: comedi_open (in /usr/lib/libcomedi.so.0.10.2)
+==2185==    by 0x109BC0: io_init (io.c:22)
+==2185==    by 0x109880: hardware_init (hardware.c:49)
+==2185==    by 0x108B51: startUp (modes.c:31)
+==2185==    by 0x10968B: modeSelector (modeSelector.c:8)
+==2185==    by 0x108AD7: main (main.c:6)
+==2185== 
+==2185== LEAK SUMMARY:
+==2185==    definitely lost: 0 bytes in 0 blocks
+==2185==    indirectly lost: 0 bytes in 0 blocks
+==2185==      possibly lost: 0 bytes in 0 blocks
+==2185==    still reachable: 1,912 bytes in 14 blocks
+==2185==         suppressed: 0 bytes in 0 blocks
+==2185== 
+==2185== For counts of detected and suppressed errors, rerun with: -v
+==2185== Use --track-origins=yes to see where uninitialised values come from
+==2185== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
+

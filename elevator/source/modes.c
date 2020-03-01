@@ -15,11 +15,12 @@ static void sigHandler(int sig) {
 
 	switch(sig){
 		case SIGSEGV:
-			printf("[Warning]: Recieved Segmentation fault.\n");
+			printf("[Warning]: Received Segmentation fault.\n");
 			hardware_command_movement(HARDWARE_MOVEMENT_STOP);
 			exit(1);
+			break;
 		default:
-			printf("[Error]: Resieved signal %d, Terminating elevator\n", sig);
+			printf("[Error]: Received signal %d, Terminating elevator\n", sig);
 			hardware_command_movement(HARDWARE_MOVEMENT_STOP);
 			exit(0);
 	}
@@ -41,9 +42,8 @@ void startUp(Elevator* elevator) {
 	closeDoor();
 
 	// crash handling
-	printf("[Info]: To terminalte program run: kill -9 %d\n", getpid());
+	printf("[Info]: To terminate program run: kill -15 %d\n", getpid());
 	signal(SIGTERM, sigHandler);
-	signal(SIGKILL, sigHandler);
 	signal(SIGSEGV, sigHandler);
 
 	// find floor
@@ -77,7 +77,7 @@ void running(Elevator* elevator) {
 		findTargetFloor(elevator);
 		updateDirection(elevator);
 
-		// wait untill a floor with orders is reached
+		// wait until a floor with orders is reached
 		while(!atTargetFloor(elevator)){
 
 			elevator->direction == UP ? elevatorMoveUp() : elevatorMoveDown();
