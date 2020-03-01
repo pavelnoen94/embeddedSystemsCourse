@@ -5,7 +5,6 @@
 #include "headers/modes.h"
 
 static void flipDir(Elevator* elevator);
-static bool isValidFloor(int floor);
 static bool onFloor(int floor);
 static bool ordersInCurrentDirection(Elevator* elevator);
 
@@ -93,14 +92,6 @@ bool atTargetFloor(Elevator* elevator) {
     }
 
     return false;
-}
-
-static bool isValidFloor(int floor){
-    if(floor > HARDWARE_NUMBER_OF_FLOORS || floor < 0){
-        return false;
-    }
-    return true;
-
 }
 
 static bool onFloor(int floor){
