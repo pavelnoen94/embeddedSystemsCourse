@@ -4,17 +4,18 @@
 #include "headers/interface.h"
 #include "headers/modes.h"
 
+static void flipDir(Elevator* elevator);
+static bool onFloor(int floor);
+
 static void flipDir(Elevator* elevator){
     if(elevator->direction == UP){
         elevator->direction = DOWN;
         elevator->lastKnownFloor++;
         return;
     }
-    if(elevator->direction == DOWN){
-        elevator->direction = UP;
-        elevator->lastKnownFloor--;
-        return;
-    }
+
+    elevator->direction = UP;
+    elevator->lastKnownFloor--;
 }
 
 bool atSomeFloor(){
@@ -22,7 +23,8 @@ bool atSomeFloor(){
         if(hardware_read_floor_sensor(i)){
             return true;
         }
-        }
+    }
+
     return false;
 }
 
@@ -30,90 +32,22 @@ bool atTargetFloor(Elevator* elevator) {
     if(!atSomeFloor()){
         return false;
     }
+
     if(elevator->direction == NONE){
         return elevator->lastKnownFloor == elevator->targetFloor ? true : false;
     }
 
-    if (elevator->direction == UP) {
-        if(ordersInCurrentDirection(elevator)){
-            // Scan orders in up direction
-            for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
-                if ((elevator->upOrders[i] || elevator->insideOrders[i]) && onFloor(i)){    
-                    return true;
-                }
-            }  
-        }else{
-            // scan orders in oposite direction starting at top floor
-            for (int i = HARDWARE_NUMBER_OF_FLOORS - 1; i >= 0; i--) {
-                if ((elevator->downOrders[i] || elevator->insideOrders[i])){
-                    elevator->targetFloor = i;
-                    if (onFloor(elevator->targetFloor)) {         
-                        return true;
-                    }else{
-                    return false;
-                    }
-                }
-            }
-        }
-    }
+    return onFloor(elevator->targetFloor) ? true : false;
 
-    if (elevator->direction == DOWN) {
-        if(ordersInCurrentDirection(elevator)){
-        // scan orders in down direction
-            for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {
-            if ((elevator->downOrders[i] || elevator->insideOrders[i]) && onFloor(i)){
-                return true;
-            }
-            }
-        }else{
-            // scan orders in oposite direction starting from the bottom
-            for (int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i ++) {      
-                if ((elevator->upOrders[i] || elevator->insideOrders[i])) {
-                    elevator->targetFloor = i;
-                    if (onFloor(elevator->targetFloor)) {
-                        return true;
-                    }else{
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-    return false;
 }
 
-bool isValidFloor(int floor){
-    if(floor > HARDWARE_NUMBER_OF_FLOORS || floor < 0){
-        return false;
-    }
-    return true;
-}
-
-bool onFloor(int floor){
+static bool onFloor(int floor){
     return hardware_read_floor_sensor(floor);
 }
 
-bool orderAt(Elevator* elevator, int floor){
-    getOrders(elevator);
-    return elevator->insideOrders[floor] || elevator->upOrders[floor] || elevator->downOrders[floor];
-}
-
-bool ordersInCurrentDirection(Elevator* elevator){
-    if (elevator->direction == UP) {
-        for (int i = elevator->lastKnownFloor; i < HARDWARE_NUMBER_OF_FLOORS; i++) {
-            if (elevator->upOrders[i] || elevator->insideOrders[i]) { 
-                return true; 
-            }
-        }
-    }
-    if (elevator->direction == DOWN) {
-        for (int i = elevator->lastKnownFloor; i > 0; i--) {
-            if (elevator->downOrders[i] || elevator->insideOrders[i]) { 
-                return true; 
-            }
-        }
-    }
-    return false;
+bool orderAt(Elevator* e, int floor){
+    updateOrders(e);
+    return e->insideOrders[floor] || e->upOrders[floor] || e->downOrders[floor];
 }
 
 bool readObstruction(){
@@ -125,57 +59,65 @@ bool readStop(){
     return hardware_read_stop_signal();
 }
 
-void getDirection(Elevator* elevator){
-    if(elevator->targetFloor == elevator->lastKnownFloor && atSomeFloor()){
-        elevator->direction = NONE;
+void updateDirection(Elevator* e){
+    // target is on this floor
+    if(e->targetFloor == e->lastKnownFloor && atSomeFloor()){
+        e->direction = NONE;
         return;
+
     }
 
-    // elevator stopped. if new floor is in oposite direction flip the direction and change the last known floor.
-    if(elevator->emergencyState && !atSomeFloor()){
-        elevator->emergencyState = false;
+    // target is above
+    if(e->targetFloor > e->lastKnownFloor){
+        if(e->direction == DOWN){
+            flipDir(e);
+            return;
 
-        if(elevator->direction == UP){
-            if(elevator->targetFloor <= elevator->lastKnownFloor){
-                flipDir(elevator);
-                return;
-            }
         }
-        if(elevator->direction == DOWN){
-            if(elevator->targetFloor >= elevator->lastKnownFloor){
-                flipDir(elevator);
-                return;
-            }
-        }
-    }
-
-    if(elevator->targetFloor > elevator->lastKnownFloor){
-        elevator->direction = UP;
+        e->direction = UP;
         return;
+
     }
-    elevator->direction = DOWN;
+
+    // target is below
+    if(e->targetFloor < e->lastKnownFloor){
+        if(e->direction == UP){
+            flipDir(e);
+            return;
+
+        }
+        e->direction = DOWN;
+        return;
+
+    }
+
+    // target is last floor
+    if(e->emergencyState && e->targetFloor == e->lastKnownFloor){
+        e->emergencyState = false;
+        flipDir(e);
+        return;
+
+    }
 }
 
-
-void clearAllOrders(Elevator* elevator){
+void clearAllOrders(Elevator* e){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-        elevator->upOrders[i] = false;
-        elevator->downOrders[i] = false;
-        elevator->insideOrders[i] = false;
+        e->upOrders[i] = false;
+        e->downOrders[i] = false;
+        e->insideOrders[i] = false;
 
         hardware_command_order_light(i,HARDWARE_ORDER_UP,0);
         hardware_command_order_light(i,HARDWARE_ORDER_DOWN,0);
         hardware_command_order_light(i,HARDWARE_ORDER_INSIDE,0);
     }
+
+    e->hasOrders = false;
 }
 
-void clearAllOrdersAtThisFloor(Elevator* elevator){
-    if(!atSomeFloor()){
-        return;
-    }
-    elevator->upOrders[elevator->lastKnownFloor] = false;
-    elevator->downOrders[elevator->lastKnownFloor] = false;
-    elevator->insideOrders[elevator->lastKnownFloor] = false;
+void clearAllOrdersAtThisFloor(Elevator* e){
+    e->upOrders[e->lastKnownFloor] = false;
+    e->downOrders[e->lastKnownFloor] = false;
+    e->insideOrders[e->lastKnownFloor] = false;
 }
 
 void closeDoor(){
@@ -195,7 +137,7 @@ void elevatorStop(){
 }
 
 void findTargetFloor(Elevator* elevator){
-    // scan all floors
+    // scan all floors on new search
     if(elevator->direction == NONE || elevator->emergencyState){
         for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(elevator->upOrders[i] || elevator->downOrders[i] || elevator->insideOrders[i]){
@@ -203,6 +145,8 @@ void findTargetFloor(Elevator* elevator){
                 return;
             }
         }
+    return;
+
     }
 
     // scan floors upwards and then downwards
@@ -237,30 +181,23 @@ void findTargetFloor(Elevator* elevator){
         }
     }
 
-    // If elevator has been stopped and the tagetFloor has never been found.
-    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
-        if(elevator->upOrders[i] || elevator->downOrders[i] || elevator->insideOrders[i]){
-            elevator->targetFloor = i;
-            return;
-        }
-    }
 }
 
-void getOrders(Elevator* elevator){
-    elevator->hasOrders = false;
+void updateOrders(Elevator* e){
+    e->hasOrders = false;
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         // read order buttons
-        elevator->upOrders[i] = elevator->upOrders[i] || hardware_read_order(i,HARDWARE_ORDER_UP);
-        elevator->downOrders[i] = elevator->downOrders[i] || hardware_read_order(i,HARDWARE_ORDER_DOWN);
-        elevator->insideOrders[i] = elevator->insideOrders[i] || hardware_read_order(i,HARDWARE_ORDER_INSIDE);
+        e->upOrders[i] = e->upOrders[i] || hardware_read_order(i,HARDWARE_ORDER_UP);
+        e->downOrders[i] = e->downOrders[i] || hardware_read_order(i,HARDWARE_ORDER_DOWN);
+        e->insideOrders[i] = e->insideOrders[i] || hardware_read_order(i,HARDWARE_ORDER_INSIDE);
 
         // set correct light
-        hardware_command_order_light(i,HARDWARE_ORDER_UP, elevator->upOrders[i]);
-        hardware_command_order_light(i,HARDWARE_ORDER_INSIDE, elevator->insideOrders[i]);
-        hardware_command_order_light(i,HARDWARE_ORDER_DOWN, elevator->downOrders[i]);
+        hardware_command_order_light(i,HARDWARE_ORDER_UP, e->upOrders[i]);
+        hardware_command_order_light(i,HARDWARE_ORDER_INSIDE, e->insideOrders[i]);
+        hardware_command_order_light(i,HARDWARE_ORDER_DOWN, e->downOrders[i]);
 
         // register orders
-        elevator->hasOrders = elevator->hasOrders || elevator->upOrders[i] || elevator->downOrders[i] || elevator->insideOrders[i];
+        e->hasOrders = e->hasOrders || e->upOrders[i] || e->downOrders[i] || e->insideOrders[i];
     }
 }
 
@@ -268,7 +205,7 @@ void openDoor(){
     hardware_command_door_open(true);
 }
 
-void readFloorSensors(Elevator* elevator){
+void updateLastFloor(Elevator* elevator){
     for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; i++){
         if(hardware_read_floor_sensor(i)){
             elevator->lastKnownFloor = i;

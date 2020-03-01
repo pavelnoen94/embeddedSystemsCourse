@@ -2,6 +2,7 @@ SOURCES := main.c modes.c interface.c modeSelector.c
 
 SOURCE_DIR := source
 BUILD_DIR := build
+DOCS_DIR := docs
 
 OBJ := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SOURCES))
 
@@ -31,4 +32,8 @@ $(DRIVER_ARCHIVE) : $(DRIVER_SOURCE:%.c=$(BUILD_DIR)/driver/%.o)
 
 .PHONY: clean
 clean :
-	rm -rf $(BUILD_DIR) elevator
+	rm -rf $(BUILD_DIR) $(DOCS_DIR)  elevator
+docs:
+	doxygen
+build-remote:
+	ssh student@labPC21 "bash -s" < buildRemote.sh

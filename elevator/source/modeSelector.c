@@ -9,8 +9,6 @@ void modeSelector(){
 
     while(1){
         if(elevator.status == UNKNOWN){
-            getOrders(&elevator);
-            findTargetFloor(&elevator);
 
             if(readStop() && atSomeFloor()){
                 clearAllOrders(&elevator);
@@ -22,6 +20,9 @@ void modeSelector(){
                 elevator.status = STOP;
                 continue;
             }
+
+            updateOrders(&elevator);
+            findTargetFloor(&elevator);
 
             if(elevator.hasOrders && atTargetFloor(&elevator)) {
                 elevator.status = SERVING;
