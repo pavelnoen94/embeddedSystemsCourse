@@ -133,29 +133,45 @@ bool readStop(){
     return hardware_read_stop_signal();
 }
 
-void updateDirection(Elevator* elevator){
+void updateDirection(Elevator* e){
     // target is on this floor
-    if(elevator->targetFloor == elevator->lastKnownFloor && atSomeFloor()){
-        elevator->direction = NONE;
+    if(e->targetFloor == e->lastKnownFloor && atSomeFloor()){
+        e->direction = NONE;
         return;
+
     }
 
-    // get target while being in emergency mode
-    if(elevator->emergencyState){
-        elevator->emergencyState = false;
-        if(elevator->targetFloor >= elevator->lastKnownFloor || elevator->targetFloor <= elevator->lastKnownFloor){
-            flipDir(elevator);
+    // target is above
+    if(e->targetFloor > e->lastKnownFloor){
+        if(e->direction == DOWN){
+            flipDir(e);
             return;
+
         }
-    }
-
-
-    // set direction
-    if(elevator->targetFloor > elevator->lastKnownFloor){
-        elevator->direction = UP;
+        e->direction = UP;
         return;
+
     }
-    elevator->direction = DOWN;
+
+    // target is below
+    if(e->targetFloor < e->lastKnownFloor){
+        if(e->direction == UP){
+            flipDir(e);
+            return;
+
+        }
+        e->direction = DOWN;
+        return;
+
+    }
+
+    // target is last floor
+    if(e->emergencyState && e->targetFloor == e->lastKnownFloor){
+        e->emergencyState = false;
+        flipDir(e);
+        return;
+
+    }
 }
 
 void clearAllOrders(Elevator* e){
