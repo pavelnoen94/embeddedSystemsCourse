@@ -43,7 +43,7 @@ void startUp(Elevator* elevator) {
 	closeDoor();
 
 	// crash handling
-	printf("[Info]: To terminalte program press ctrl+c or type in terminal: \n\nkill -9 %d in terminal'\n\n", getpid());
+	printf("[Info]: To terminalte program press ctrl+c or type in terminal: \n\nkill -9 %d in terminal\n\n", getpid());
 	signal(SIGTERM, sigHandler);
 	signal(SIGKILL, sigHandler);
 	signal(SIGSEGV, sigHandler);

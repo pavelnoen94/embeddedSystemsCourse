@@ -22,6 +22,7 @@ void modeSelector(){
             }
 
             updateOrders(&elevator);
+            findTargetFloor(&elevator);
 
             if(elevator.hasOrders && atTargetFloor(&elevator)) {
                 elevator.status = SERVING;
