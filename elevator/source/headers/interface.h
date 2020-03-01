@@ -97,7 +97,7 @@ void elevatorMoveUp();
 void elevatorStop();
 
 /**
- * @brief Find targt floor. This function takes direction in to accont. Make sure to call @c findTargetFloor(Elevator*) first
+ * @brief Find target floor. This function takes direction in to accont. Make sure to call @c findTargetFloor(Elevator*) first
  * @see @c findTargetFloor(Elevator*)
  * 
  * @param elevatorInstance initialized elevator instacne
